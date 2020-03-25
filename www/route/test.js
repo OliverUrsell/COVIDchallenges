@@ -3,6 +3,7 @@ var map;
 var infowindow;
 var polyline = null;
 var gmarkers = [];
+var distance = (204+20+13)*1000;
 
 function initMap() {
   var directionsService = new google.maps.DirectionsService();
@@ -10,7 +11,11 @@ function initMap() {
   var directionsService = new google.maps.DirectionsService;
   var directionsDisplay = new google.maps.DirectionsRenderer;
   map = new google.maps.Map(document.getElementById('map'), {
-    zoom: 7
+    zoom: 7,
+    center: {
+      lat: 41.85,
+      lng: -87.65
+    }
   });
   polyline = new google.maps.Polyline({
     path: [],
@@ -25,8 +30,9 @@ function initMap() {
 
 function calculateAndDisplayRoute(directionsService, directionsDisplay) {
   directionsService.route({
-    origin: _origin,
-    destination: _destination,
+    origin: {query: "John O'Groats Harbour"},
+    // destination: {lat: 50.066093, lng: -5.715103},
+    destination: {query: "Land's End Signpost"},
     travelMode: 'BICYCLING'
   }, function(response, status) {
     if (status == google.maps.DirectionsStatus.OK) {
@@ -63,24 +69,27 @@ function calculateAndDisplayRoute(directionsService, directionsDisplay) {
         gmarkers[i].setMap(null);
       }
       gmarkers = [];
-      var points = GetPointsAtDistance(polyline, distance);
+      var point = GetPointsAtDistance(polyline, distance)[0];
       var marker = new google.maps.Marker({
         map: map,
-        position: points[0],
+        position: point,
         title: distance/1000 + " Kilometer(s)"
       });
       marker.addListener('click', openInfoWindow);
-      var distanceTotal = google.maps.geometry.spherical.computeLength(polyline.getPath().getArray());
-      $("#letterValues").html(distance/1000 + " / " + Math.floor(distanceTotal/10)/100 + "Km");
-      $("#progressBarContents").animate({width: String((distance/distanceTotal)*100) + 2 + "%"}, 4000, function(){
-		$("#progressBarContents").animate({width: String((distance/distanceTotal)*100) + "%"}, 200, function(){
-			$("#letterValues").show("fast");
-		});
-	  });
+
     } else {
       alert("directions response " + status);
     }
   });
+
+
+  /*  function(response, status) {
+      if (status === 'OK') {
+        directionsDisplay.setDirections(response);
+      } else {
+        window.alert('Directions request failed due to ' + status);
+      }
+    }); */
 }
 
 function createMarker(latlng, label, html, color) {
