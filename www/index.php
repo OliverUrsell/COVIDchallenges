@@ -13,9 +13,53 @@
         <div id="navbar">Hello world</div>
 
         <?php
-            $start = "John O'Groats";
-            $end = "Land's End Signpost";
-            $distanceCovered = (204+20+13)*1000;
+            $servername = "localhost";
+            $username = "Ollie";
+            $password = "databasepassword";
+            $dbname = "main";
+
+            // Create connection
+            $conn = new mysqli($servername, $username, $password, $dbname);
+            // Check connection
+            if ($conn->connect_error) {
+                die("Connection failed: " . $conn->connect_error);
+            }
+
+            $sql = "SELECT * FROM tbljourneys WHERE JourneyID = " . $conn -> real_escape_string($_GET["JourneyID"]);
+            $result = $conn->query($sql);
+            if ($result == null){
+                echo "Journey not found, please return to the previous page and try the link again";
+                exit(1);
+            } elseif ($result->num_rows == 1) {
+                // output data of each row
+                $row = $result->fetch_assoc();
+                $startDisplayName = htmlspecialchars($row['StartDisplayName']);
+                $endDisplayName = htmlspecialchars($row['EndDisplayName']);
+            } else {
+                echo "Duplicate ID found, ID:" . htmlspecialchars($_GET["JourneyID"]) . ". Whoops, this one is on us.";
+                exit(1);
+            }
+
+            $start = explode(",", $row['StartLatLong']);
+            $end = explode(",", $row['EndLatLong']);
+
+            $sql = "SELECT * FROM tbljourneysusers WHERE (UserID = ". htmlspecialchars($_GET["UserID"]) ." AND JourneyID = ". htmlspecialchars($_GET["JourneyID"]) .")";
+            $result = $conn->query($sql);
+            if ($result->num_rows == 1) {
+                // output data of each row
+                $row = $result->fetch_assoc();
+                $distanceCovered = $row["DistanceTravelled"]*10;
+            } elseif ($result->num_rows == 0) {
+                echo "No data for this user was found on this journey, please return to the previous page and try the link again";
+                exit(1);
+            } else {
+                echo "Duplicate ID found, ID:" . htmlspecialchars($_GET["JourneyID"]) . ". Whoops, this one is on us.";
+                exit(1);
+            }
+            
+            $conn->close();
+
+            //{lat: 50.066093, lng: -5.715103}
 
             // if(isset($_REQUEST['distanceUpdateSubmit']))
             // {
@@ -23,8 +67,8 @@
             // }
             
             echo "<script>" .
-            "var _origin = {query: \"". $start ."\"};" .
-            "var _destination = {query: \"". $end ."\"};" .
+            "var _origin = {lat:".$start[0].",lng:".$start[1]."};" .
+            "var _destination = {lat:".$end[0].",lng:".$end[1]."};" .
             "var distance = " . $distanceCovered . ";" .
             "</script>";
         ?>
@@ -33,14 +77,14 @@
         <div class="container-fluid">
             <div id="routeName" class="row">
                 <div class="col-xs-12">
-                    <?php echo $start . " to " . $end;?>
+                    <?php echo $startDisplayName . " to " . $endDisplayName;?>
                 </div>
             </div>
             <div id="toFromDisplay" class="row">
-                <div id="progressBar" class="col-xs-10">
+                <div id="progressBar" class="col-xs-9">
                     <div id="progressBarContents"></div>
                 </div>
-                <div id="letterValues" class="col-xs-2">
+                <div id="letterValues" class="col-xs-3">
                     There was an error! This should be updated!
                 </div>
             </div>
@@ -57,6 +101,8 @@
         <div id="config">
             <form action="route/addUpdate.php" method="post">
                 <div class="form-group">
+                  <input name="JourneyID" type="hidden" value="<?php echo htmlspecialchars($_GET['JourneyID'])?>">
+                  <input name="UserID" type="hidden" value="<?php echo htmlspecialchars($_GET['UserID'])?>">
                   <label for="distanceInput">Distance travelled (Kilometers)</label>
                   <input name="distanceUpdate" type="number" class="form-control" id="distanceInput" aria-describedby="distanceHelp" placeholder="How far did you go?">
                   <small id="distanceHelp" class="form-text text-muted">Should be to maximum two decimal places.</small>
@@ -67,7 +113,7 @@
         </div> 
 
         <script src="route/route.js"></script>
-        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAn_3UQjVzZh01LHtMFPnfLFCkKiBK4Joc&callback=initMap">
+        <!-- <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAn_3UQjVzZh01LHtMFPnfLFCkKiBK4Joc&callback=initMap"> -->
     </script>
     </body>
 </html>
