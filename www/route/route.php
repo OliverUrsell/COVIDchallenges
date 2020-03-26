@@ -8,7 +8,7 @@
         <script src="../jquery.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
     </head>
-    <body id="test">
+    <body>
 
         <div id="navbar">Hello world</div>
 
@@ -31,7 +31,7 @@
                 echo "Journey not found, please return to the previous page and try the link again";
                 exit(1);
             } elseif ($result->num_rows == 1) {
-                // output data of each row
+                // set values for journey
                 $row = $result->fetch_assoc();
                 $startDisplayName = htmlspecialchars($row['StartDisplayName']);
                 $endDisplayName = htmlspecialchars($row['EndDisplayName']);
@@ -50,7 +50,7 @@
             $sql = "SELECT * FROM tbljourneysusers WHERE (UserID = ". htmlspecialchars($_GET["UserID"]) ." AND JourneyID = ". htmlspecialchars($_GET["JourneyID"]) .")";
             $result = $conn->query($sql);
             if ($result->num_rows == 1) {
-                // output data of each row
+                // assign the covered distance
                 $row = $result->fetch_assoc();
                 $distanceCovered = $row["DistanceTravelled"]*10;
             } elseif ($result->num_rows == 0) {
@@ -77,7 +77,7 @@
             "</script>";
         ?>
 
-        <div id="map" style=""></div>
+        <div id="map"></div>
         <div class="container-fluid">
             <div id="routeName" class="row">
                 <div class="col-xs-12">
@@ -109,7 +109,7 @@
                   <input name="userID" type="hidden" value="<?php echo htmlspecialchars($_GET['UserID'])?>">
                   <input name="distanceCovered" type="hidden" value="<?php echo $distanceCovered?>">
                   <label for="distanceInput">Distance travelled (Kilometers)</label>
-                  <input name="distanceUpdate" type="number" class="form-control" id="distanceInput" aria-describedby="distanceHelp" placeholder="How far did you go?">
+                  <input name="distanceUpdate" type="number" class="form-control" id="distanceInput" aria-describedby="distanceHelp" placeholder="How far did you go?" required>
                   <small id="distanceHelp" class="form-text text-muted">Should be to maximum two decimal places.</small>
                 </div>
                 <button name="distanceUpdateSubmit" type="submit" class="btn btn-primary">Update</button>
@@ -120,7 +120,7 @@
         <!-- <footer>View our cookie policy: https://www.termsfeed.com/cookies-policy/044a9bc1485cc0cf54b509fedb4fa29b</footer> -->
 
         <script src="route.js"></script>
-        <!-- <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAn_3UQjVzZh01LHtMFPnfLFCkKiBK4Joc&callback=initMap"> -->
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAn_3UQjVzZh01LHtMFPnfLFCkKiBK4Joc&callback=initMap">
     </script>
     </body>
 </html>

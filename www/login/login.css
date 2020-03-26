@@ -1,74 +1,42 @@
-body{
-	background-color: black;
-	color:white;
-	overflow-x: none;
+body, html {
+  height: 100%;
+  background-color: black;
+}
+
+.bg { 
+  /* The image used */
+  background-image: url("https://mdbootstrap.com/img/Photos/Horizontal/Nature/full page/img(20).jpg");
+
+  /* Full height */
+  height: 100%; 
+
+  /* Center and scale the image nicely */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 #navbar{
+	position:fixed;
+	top:0;
+	width:100%;
 	background-color: #c51414;
 	color:white;
 	height:10vh;
 }
 
-#map{
-	width:100%;
-	height: min(50vw, 50vh);
-	color:black;
-}
-
-#routeName{
-	padding:0.5em;
-	font-size: 150%;
-}
-
-#toFromDisplay{
-	background-color: grey;
-	padding:1em;
-	font-size: 150%;
-	border-left: solid red 2vw;
-}
-
-#progressBar{
-	height: 1.5em;
-	background-color: #4e0a0a;
-	border: solid black 0.1em;
-	padding:0;
-}
-
-#progressBarContents{
-	height:1.3em;
-	width:0%;
-	background-color: blue;
-}
-
-#letterValues{
-	display:none;
-}
-
-#actionButtons{
-	height:100%;
-	bottom:0;
-}
-
-.actionButtonContainer{
-	padding:0;
-	border:black thick;
-}
-
-.actionButton{
-	width:100%;
-	background-color: white;
-	color:black;
-	cursor: pointer;
-}
-
-#config{
-	display: none;
+#login{
 	position: fixed;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
     padding:2em;
-	background-color: white;
+	background-color: #737392;
 	color:black;
+	box-shadow: 0 0 30px black;
+	text-align: center;
+}
+
+#incorrectMessage{
+	color:red;
 }

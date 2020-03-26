@@ -14,11 +14,12 @@
     }
 
 	//Add $_POST['distanceUpdate']; to some kind of database value then redirect:
-	$distanceCovered = $_POST["distanceCovered"];
-	$distanceUpdate = $_POST["distanceUpdate"];
+	$distanceCovered = htmlspecialchars($_POST["distanceCovered"]);
+	$distanceUpdate = htmlspecialchars($_POST["distanceUpdate"]);
 	$newDistance = $distanceCovered/10 + $distanceUpdate*100;
 	// $newDistance = 24700;
-	$sql = "UPDATE `tbljourneysusers` SET `DistanceTravelled` = ". $newDistance ." WHERE `JourneyID` = ". $_POST["journeyID"] ." AND `UserID` = ". $_POST["userID"];
+	// $newDistance = 250000;
+	$sql = "UPDATE tbljourneysusers SET DistanceTravelled = ". $newDistance ." WHERE JourneyID = ". $conn -> real_escape_string($_POST["journeyID"]) ." AND `UserID` = ". $conn -> real_escape_string($_POST["userID"]);
 	if ($conn->query($sql) === TRUE) {
 	    echo "Record updated successfully";
 	} else {
@@ -26,7 +27,7 @@
 	}
 
 	$conn->close();
-	header('Location: route.php?JourneyID='.$_POST['journeyID'].'&UserID='.$_POST['userID']);
+	header('Location: route.php?JourneyID='.htmlspecialchars($_POST['journeyID']).'&UserID='.htmlspecialchars($_POST['userID']));
 ?>
 </body>
 </html>
