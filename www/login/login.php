@@ -12,9 +12,10 @@
     </head>
     <body>
         <div class="bg"></div>
-        <div id="navbar">Hello world</div>
 
         <?php
+            include_once("hanjie/hanjie.php");
+
             // password
             $incorrect = FALSE;
 
