@@ -4,8 +4,8 @@
         <meta charset="utf-8"> 
         <title>Route Name</title>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
-        <link rel="stylesheet" href="route/route.css">
-        <script src="jquery.min.js"></script>
+        <link rel="stylesheet" href="route.css">
+        <script src="../jquery.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
     </head>
     <body id="test">
@@ -39,6 +39,10 @@
                 echo "Duplicate ID found, ID:" . htmlspecialchars($_GET["JourneyID"]) . ". Whoops, this one is on us.";
                 exit(1);
             }
+
+            // $result = $conn->query("SELECT COUNT(*) as total FROM tbljourneysusers WHERE JourneyID = " . $conn -> real_escape_string($_GET['JourneyID']));
+            // $row = $result->fetch_assoc();
+            // echo $row['total'];
 
             $start = explode(",", $row['StartLatLong']);
             $end = explode(",", $row['EndLatLong']);
@@ -90,19 +94,20 @@
             </div>
             <div id="actionButtons" class="row">
                 <div class="col-xs-2 actionButtonContainer input-lg">
-                    <div onclick="$('#config').show('slow');" class="actionButton"><img class="img-responsive" src="route/compassRose.png"></div>
+                    <div onclick="$('#config').show('slow');" class="actionButton"><img class="img-responsive" src="compassRose.png"></div>
                 </div>
                 <div class="col-xs-2 actionButtonContainer input-lg">
-                    <div onclick="$('#config').show('slow');" class="actionButton"><img class="img-responsive" src="route/open-book-silhouette.jpg"></div>
+                    <div onclick="$('#config').show('slow');" class="actionButton"><img class="img-responsive" src="open-book-silhouette.jpg"></div>
                 </div>
             </div>
         </div>
 
         <div id="config">
-            <form action="route/addUpdate.php" method="post">
+            <form action="addUpdate.php" method="post">
                 <div class="form-group">
-                  <input name="JourneyID" type="hidden" value="<?php echo htmlspecialchars($_GET['JourneyID'])?>">
-                  <input name="UserID" type="hidden" value="<?php echo htmlspecialchars($_GET['UserID'])?>">
+                  <input name="journeyID" type="hidden" value="<?php echo htmlspecialchars($_GET['JourneyID'])?>">
+                  <input name="userID" type="hidden" value="<?php echo htmlspecialchars($_GET['UserID'])?>">
+                  <input name="distanceCovered" type="hidden" value="<?php echo $distanceCovered?>">
                   <label for="distanceInput">Distance travelled (Kilometers)</label>
                   <input name="distanceUpdate" type="number" class="form-control" id="distanceInput" aria-describedby="distanceHelp" placeholder="How far did you go?">
                   <small id="distanceHelp" class="form-text text-muted">Should be to maximum two decimal places.</small>
@@ -110,9 +115,11 @@
                 <button name="distanceUpdateSubmit" type="submit" class="btn btn-primary">Update</button>
             </form>
             <button onclick="$('#config').hide('slow');" class="btn btn-danger">Cancel</button>
-        </div> 
+        </div>
 
-        <script src="route/route.js"></script>
+        <!-- <footer>View our cookie policy: https://www.termsfeed.com/cookies-policy/044a9bc1485cc0cf54b509fedb4fa29b</footer> -->
+
+        <script src="route.js"></script>
         <!-- <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAn_3UQjVzZh01LHtMFPnfLFCkKiBK4Joc&callback=initMap"> -->
     </script>
     </body>

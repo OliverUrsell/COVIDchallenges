@@ -1,0 +1,74 @@
+body{
+	background-color: black;
+	color:white;
+	overflow-x: none;
+}
+
+#navbar{
+	background-color: #c51414;
+	color:white;
+	height:10vh;
+}
+
+#map{
+	width:100%;
+	height: min(50vw, 50vh);
+	color:black;
+}
+
+#routeName{
+	padding:0.5em;
+	font-size: 150%;
+}
+
+#toFromDisplay{
+	background-color: grey;
+	padding:1em;
+	font-size: 150%;
+	border-left: solid red 2vw;
+}
+
+#progressBar{
+	height: 1.5em;
+	background-color: #4e0a0a;
+	border: solid black 0.1em;
+	padding:0;
+}
+
+#progressBarContents{
+	height:1.3em;
+	width:0%;
+	background-color: blue;
+}
+
+#letterValues{
+	display:none;
+}
+
+#actionButtons{
+	height:100%;
+	bottom:0;
+}
+
+.actionButtonContainer{
+	padding:0;
+	border:black thick;
+}
+
+.actionButton{
+	width:100%;
+	background-color: white;
+	color:black;
+	cursor: pointer;
+}
+
+#config{
+	display: none;
+	position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    padding:2em;
+	background-color: white;
+	color:black;
+}
