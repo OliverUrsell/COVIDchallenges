@@ -70,6 +70,7 @@
 
         <div id="login">
             <h2>Login</h2>
+            <br>
             <?php if($incorrect){echo "<span id=\"incorrectMessage\"> ! Email or password is incorrect. Please try again</span><br><br>";}?>
             <form action="login.php" method="post">
                 <input name="email" type="email" class="form-control form-control-lg" placeholder="Email" required><br>

@@ -21,7 +21,7 @@
 		                die("Connection failed: " . $conn->connect_error);
 		            }
 
-		            $sql = "SELECT FirstName, LastName FROM tblusers WHERE UserID = " . $conn -> real_escape_string($_SESSION["userID"]);
+		            $sql = "SELECT DisplayName FROM tblusers WHERE UserID = " . $conn -> real_escape_string($_SESSION["userID"]);
 		            $result = $conn->query($sql);
 		            if ($result == null){
 		                echo "The logged in user was not found";
@@ -36,7 +36,7 @@
 					// User is logged in
 					echo "<div class=\"col-3\"></div>
 					<div class=\"col-2\">
-						<a href=\"../userProfile/userProfile.php?UserID=". $_SESSION["userID"] ."\"><button class=\"nav-button nav-button-right\">". $row["FirstName"] ." ". $row["LastName"] ."</button></a>
+						<a href=\"../userProfile/userProfile.php?UserID=". $_SESSION["userID"] ."\"><button class=\"nav-button nav-button-right\">". $row["DisplayName"] ."</button></a>
 					</div>";
 				}else{
 					// User is not logged in

@@ -16,12 +16,12 @@ body, html {
   background-size: cover;
 }
 
-#login{
+#register{
 	position: fixed;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    padding:2em;
+  left: 50%;
+  top: 54%;
+  transform: translate(-50%, -50%);
+  padding:2em;
 	background-color: #2d2c3d;/*#737392;*/
 	color:#b0b0b0;
 	box-shadow: 0 0 3em black;
@@ -29,10 +29,9 @@ body, html {
 	min-width: 30em;
 }
 
-#incorrectMessage{
+#emailTaken{
 	color:#8c8e01;
 	background-color: white;
-	padding:0.3em;
+	padding:0.5em;
 	border-radius: 0.5em;
-	font-size: 1.3em;
 }

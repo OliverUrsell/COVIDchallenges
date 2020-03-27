@@ -30,7 +30,7 @@
         <?php
 
             // password
-            $incorrect = FALSE;
+            $taken = FALSE;
 
             if(isset($_SESSION["userID"])) {
                 //User is already logged in
@@ -38,7 +38,7 @@
                 exit();
             }
 
-            if(isset($_REQUEST['loginSubmit'])){
+            if(isset($_REQUEST['registerSubmit'])){
                 $servername = "localhost";
                 $username = "Ollie";
                 $password = "databasepassword";
@@ -50,54 +50,33 @@
                 if ($conn->connect_error) {
                     die("Connection failed: " . $conn->connect_error);
                 }
-                $sql = "SELECT UserID, Password FROM tblusers WHERE Email = '". $conn -> real_escape_string($_POST["email"]) ."'";
-                $result = $conn->query($sql);
-                if ($result === null || $result->num_rows == 0){
-                    //Acount not found
-                    $incorrect = TRUE;
-                } elseif ($result->num_rows == 1) {
-                    $row = $result->fetch_assoc();
-                    // test the password
-                    $passwordFromPost = htmlspecialchars($_POST["password"]);
-                    $hashedPasswordFromDB = htmlspecialchars($row["Password"]);
 
-                    if (password_verify($passwordFromPost, $hashedPasswordFromDB)) {
-                        // Valid password
-                        $_SESSION['userID'] = htmlspecialchars($row["UserID"]);
-                        header('Location: ../userProfile/userProfile.php?UserID='.htmlspecialchars($row['UserID']));
-                        exit();
-                    } else {
-                        // Invalid password
-                        $incorrect = TRUE;
-                    }
-                } else {
-                    $row = $result->fetch_assoc();
-                    echo "Duplicate account found, ID:" . htmlspecialchars($row["UserID"]) . ". Whoops, this one is on us.";
+                $result = $conn->query("SELECT COUNT(*) as total FROM tblusers WHERE Email = '". $conn -> real_escape_string($_POST["email"]) ."'");
+                $row = $result->fetch_assoc();
+                if($row['total'] != 0){
+                    // The email the user has submitted is already being used
+                    $taken = TRUE;
+                }else{
+                    // The account is new
                 }
 
                 $conn->close();
             }
         ?>
 
-        <div id="login">
-            <h2>Register</h2>
-            <?php if($incorrect){echo "<span id=\"incorrectMessage\"> ! Email or password is incorrect. Please try again</span><br><br>";}?>
-            <form action="login.php" method="post" oninput='password2.setCustomValidity(password2.value != password.value ? "Passwords do not match." : "")'>
+        <div id="register">
+            <h2>Register</h2><br>
+            <?php if($taken){echo "<span id=\"emailTaken\"> ! That email has already been used.</span><br><br>";}?>
+            <form action="register.php" method="post" oninput='password2.setCustomValidity(password2.value != password.value ? "Passwords do not match." : "")'>
                 <div class="form-group">
                     <input name="email" type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Email" required>
                     <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
                 </div>
                 <input name="password" type="password" class="form-control" placeholder="Password" required><br>
                 <input name="password2" type="password" class="form-control" placeholder="Re-type Password" required><br>
-                <div class="form-row">
-                    <div class="col">
-                        <input type="text" class="form-control" placeholder="First name">
-                    </div>
-                    <div class="col">
-                        <input type="text" class="form-control" placeholder="Last name">
-                    </div>
-                </div><br>
-                <button name="loginSubmit" type="submit" class="btn btn-primary">Login</button>
+                <input type="text" class="form-control" placeholder="Display Name" required>
+                <br>
+                <button name="registerSubmit" type="submit" class="btn btn-warning">Register</button>
             </form>
 
             <button type="button" class="btn btn-link" onclick="window.location.href = '../login/login.php';">Already got an account? Log in here</button>
