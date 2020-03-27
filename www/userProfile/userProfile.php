@@ -1,3 +1,4 @@
+<?php session_start();?>
 <?php if(session_status() == 0){session_start();} ?>
 
 <!DOCTYPE HTML>
@@ -11,10 +12,9 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
     </head>
     <body>
-        <!-- <div id="navbar">Hello world</div> -->
 
         <?php
-            session_start();
+            include_once("../navbar/navbar.php");
             if(isset($_SESSION['userID'])) {
                 //User is logged in
                 echo "UserID logged in is: " . htmlspecialchars($_SESSION['userID']);

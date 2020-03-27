@@ -1,20 +1,22 @@
+<?php session_start();?>
+<!-- <?php if(session_status() == 0){session_start();} ?> -->
+
 <!DOCTYPE HTML>
 <html lang="en">
     <head>
         <meta charset="utf-8"> 
         <title>Route Name</title>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
         <link rel="stylesheet" href="route.css">
         <script src="../jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     </head>
     <body>
 
-        
+        <?php include '../navbar/navbar.php';?>
 
         <?php
-
-            include_once("../navbar/navbar.php");
 
             $servername = "localhost";
             $username = "Ollie";
@@ -40,7 +42,7 @@
                 $endDisplayName = htmlspecialchars($row['EndDisplayName']);
             } else {
                 echo "Duplicate ID found, ID:" . htmlspecialchars($_GET["JourneyID"]) . ". Whoops, this one is on us.";
-                exit(1);
+                exit();
             }
 
             // $result = $conn->query("SELECT COUNT(*) as total FROM tbljourneysusers WHERE JourneyID = " . $conn -> real_escape_string($_GET['JourneyID']));
@@ -58,10 +60,10 @@
                 $distanceCovered = $row["DistanceTravelled"]*10;
             } elseif ($result->num_rows == 0) {
                 echo "No data for this user was found on this journey, please return to the previous page and try the link again";
-                exit(1);
+                exit();
             } else {
                 echo "Duplicate ID found, ID:" . htmlspecialchars($_GET["JourneyID"]) . ". Whoops, this one is on us.";
-                exit(1);
+                exit();
             }
             
             $conn->close();
@@ -83,25 +85,26 @@
         <div id="map"></div>
         <div class="container-fluid">
             <div id="routeName" class="row">
-                <div class="col-xs-12">
+                <div class="col-12">
                     <?php echo $startDisplayName . " to " . $endDisplayName;?>
                 </div>
             </div>
             <div id="toFromDisplay" class="row">
-                <div id="progressBar" class="col-xs-9">
+                <div id="progressBar" class="col-9">
                     <div id="progressBarContents"></div>
                 </div>
-                <div id="letterValues" class="col-xs-3">
+                <div id="letterValues" class="col-3">
                     There was an error! This should be updated!
                 </div>
             </div>
             <div id="actionButtons" class="row">
-                <div class="col-xs-2 actionButtonContainer input-lg">
-                    <div onclick="$('#config').show('slow');" class="actionButton"><img class="img-responsive" src="compassRose.png"></div>
+                <div class="col-2 actionButtonContainer input-lg">
+                    <div onclick="$('#config').show('fast');" class="actionButton"><img class="img-fluid" src="compassRose.png"></div>
                 </div>
-                <div class="col-xs-2 actionButtonContainer input-lg">
-                    <div onclick="$('#config').show('slow');" class="actionButton"><img class="img-responsive" src="open-book-silhouette.jpg"></div>
+                <div class="col-2 actionButtonContainer input-lg">
+                    <div onclick="$('#config').show('fast');" class="actionButton"><img class="img-fluid" src="open-book-silhouette.jpg"></div>
                 </div>
+                <div class="col-8"></div>
             </div>
         </div>
 
@@ -117,7 +120,8 @@
                 </div>
                 <button name="distanceUpdateSubmit" type="submit" class="btn btn-primary">Update</button>
             </form>
-            <button onclick="$('#config').hide('slow');" class="btn btn-danger">Cancel</button>
+            <br>
+            <button onclick="$('#config').hide('fast');" class="btn btn-danger">Cancel</button>
         </div>
 
         <!-- <footer>View our cookie policy: https://www.termsfeed.com/cookies-policy/044a9bc1485cc0cf54b509fedb4fa29b</footer> -->

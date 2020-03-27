@@ -1,0 +1,35 @@
+#navbar{
+	position:fixed;
+	top:0;
+	width:100%;
+	background-color: #c51414;
+	color:white;
+	height:3em;
+	z-index:999;
+}
+
+.nav-button{
+	color:white;
+	position:relative;
+	float:left;
+	background-color: #c51414;
+	height:3em;
+	border:none;
+	padding-left: 1em;
+	padding-right: 1em;
+	text-decoration: none;
+}
+
+.nav-button-right {
+	float: right;
+}
+
+.nav-button:hover {
+    -webkit-animation: border-raise 0.2s forwards; /*for less modern browsers*/
+    animation: border-raise 0.2s forwards; /*Inifinite*/
+}
+
+/* Animations */
+@keyframes border-raise {
+    to   {border-bottom:solid 0.05em black; background-color: #961c1c;}
+}

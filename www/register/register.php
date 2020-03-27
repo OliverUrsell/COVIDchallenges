@@ -1,12 +1,13 @@
 <?php session_start();?>
+<!-- <?php if(session_status() == 0){session_start();} ?> -->
 
 <!DOCTYPE HTML>
 <html lang="en">
     <head>
         <meta charset="utf-8"> 
-        <title>Login</title>
+        <title>Register</title>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-        <link rel="stylesheet" href="login.css">
+        <link rel="stylesheet" href="register.css">
         <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
@@ -15,6 +16,16 @@
         <div class="bg"></div>
 
         <?php include '../navbar/navbar.php';?>
+
+        <!-- <?php
+            $options = [
+                'cost' => 11,
+            ];
+            // Get the password from post
+            $passwordFromPost = "password";
+
+            echo password_hash($passwordFromPost, PASSWORD_BCRYPT, $options);
+        ?> -->
 
         <?php
 
@@ -69,14 +80,27 @@
         ?>
 
         <div id="login">
-            <h2>Login</h2>
+            <h2>Register</h2>
             <?php if($incorrect){echo "<span id=\"incorrectMessage\"> ! Email or password is incorrect. Please try again</span><br><br>";}?>
-            <form action="login.php" method="post">
-                <input name="email" type="email" class="form-control form-control-lg" placeholder="Email" required><br>
-                <input name="password" type="password" class="form-control form-control-lg" placeholder="Password" required><br>
+            <form action="login.php" method="post" oninput='password2.setCustomValidity(password2.value != password.value ? "Passwords do not match." : "")'>
+                <div class="form-group">
+                    <input name="email" type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Email" required>
+                    <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+                </div>
+                <input name="password" type="password" class="form-control" placeholder="Password" required><br>
+                <input name="password2" type="password" class="form-control" placeholder="Re-type Password" required><br>
+                <div class="form-row">
+                    <div class="col">
+                        <input type="text" class="form-control" placeholder="First name">
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-control" placeholder="Last name">
+                    </div>
+                </div><br>
                 <button name="loginSubmit" type="submit" class="btn btn-primary">Login</button>
             </form>
-            <button type="button" class="btn btn-link" onclick="window.location.href = '../register/register.php';">New User? Register here</button>
+
+            <button type="button" class="btn btn-link" onclick="window.location.href = '../login/login.php';">Already got an account? Log in here</button>
         </div>
 
         <!-- <footer>View our cookie policy: https://www.termsfeed.com/cookies-policy/044a9bc1485cc0cf54b509fedb4fa29b</footer> -->
