@@ -58,6 +58,40 @@
                     $taken = TRUE;
                 }else{
                     // The account is new
+                    //Insert the new account, set the session variable and redirect to the new userpage
+                    // Hash and salt the password
+                    $options = [
+                        'cost' => 11,
+                    ];
+                    $passwordFromPost = $conn -> real_escape_string($_POST["password"]);
+
+                    $hash = password_hash($passwordFromPost, PASSWORD_BCRYPT, $options);
+
+                    // Create new account
+                    $sql = "INSERT INTO tblusers (UserID, Email, Password, DisplayName) VALUES (NULL, '". $conn -> real_escape_string($_POST["email"]) ."', '". $hash ."', '". $conn -> real_escape_string($_POST["displayName"]) ."')";
+                    if ($conn->query($sql) === TRUE) {
+                        // Record updated successfully
+                        //Log user in
+                        $sql = "SELECT UserID, Password FROM tblusers WHERE Email = '". $conn -> real_escape_string($_POST["email"]) ."'";
+                        $result = $conn->query($sql);
+                        if ($result === null || $result->num_rows == 0){
+                            //Acount not found
+                            echo "Account not successfully created";
+                        } elseif ($result->num_rows == 1) {
+                            // Account ID found
+                            $row = $result->fetch_assoc();
+                            $_SESSION['userID'] = htmlspecialchars($row["UserID"]);
+                            header('Location: ../userProfile/userProfile.php?UserID='.htmlspecialchars($row['UserID']));
+                            exit();
+                        } else {
+                            $row = $result->fetch_assoc();
+                            echo "Duplicate account found, ID:" . htmlspecialchars($row["UserID"]) . ". Whoops, this one is on us.";
+                        }
+                    } else {
+                        echo "Error updating record: " . $conn->error;
+                    }
+
+                    $conn->close();
                 }
 
                 $conn->close();
@@ -74,8 +108,7 @@
                 </div>
                 <input name="password" type="password" class="form-control" placeholder="Password" required><br>
                 <input name="password2" type="password" class="form-control" placeholder="Re-type Password" required><br>
-                <input type="text" class="form-control" placeholder="Display Name" required>
-                <br>
+                <input name="displayName" type="text" class="form-control" placeholder="Display Name" required><br>
                 <button name="registerSubmit" type="submit" class="btn btn-warning">Register</button>
             </form>
 
