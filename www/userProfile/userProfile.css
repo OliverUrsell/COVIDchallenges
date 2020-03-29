@@ -1,86 +1,82 @@
-<?php session_start();?>
+body, html {
+  background-color: #0f1007;
+  color:white;
+}
 
-<!DOCTYPE HTML>
-<html lang="en">
-    <head>
-        <meta charset="utf-8"> 
-        <title>Login</title>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-        <link rel="stylesheet" href="login.css">
-        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-    </head>
-    <body>
-        <div class="bg"></div>
+.block{
+	width:100%;
+	margin-top: 5vh;
+	padding: 1em;
+	background-color: #3b3434;
+}
 
-        <?php include '../navbar/navbar.php';?>
+#name{
+	position: relative;
+	background-color: #3b3434;
+	margin-bottom: 0.5em;
+	font-size: 3vw;
+}
 
-        <?php
+#selector{
+	padding-bottom: 0;
+}
 
-            // password
-            $incorrect = FALSE;
+.category{
+	color:white;
+	position:relative;
+	background-color: #625858;
+	height:3em;
+	border:none;
+	text-decoration: none;
+	width:100%;
+	-webkit-appearance: none;
+}
 
-            if(isset($_SESSION["userID"])) {
-                //User is already logged in
-                header('Location: ../userProfile/userProfile.php?UserID='.htmlspecialchars($_SESSION["userID"]));
-                exit();
-            }
+.category:hover {
+    -webkit-animation: category-border-raise 0.2s forwards; /*for less modern browsers*/
+    animation: category-border-raise 0.2s forwards; /*Inifinite*/
+}
 
-            if(isset($_REQUEST['loginSubmit'])){
-                $servername = "localhost";
-                $username = "Ollie";
-                $password = "databasepassword";
-                $dbname = "main";
+/* Animations */
+@keyframes category-border-raise {
+    to   {border-bottom:solid 0.15em black; background-color: #978888;}
+}
 
-                // Create connection
-                $conn = new mysqli($servername, $username, $password, $dbname);
-                // Check connection
-                if ($conn->connect_error) {
-                    die("Connection failed: " . $conn->connect_error);
-                }
-                $sql = "SELECT UserID, Password FROM tblusers WHERE Email = '". $conn -> real_escape_string($_POST["email"]) ."'";
-                $result = $conn->query($sql);
-                if ($result === null || $result->num_rows == 0){
-                    //Acount not found
-                    $incorrect = TRUE;
-                } elseif ($result->num_rows == 1) {
-                    $row = $result->fetch_assoc();
-                    // test the password
-                    $passwordFromPost = htmlspecialchars($_POST["password"]);
-                    $hashedPasswordFromDB = htmlspecialchars($row["Password"]);
+.selected{
+	border-bottom: solid 0.15em black; background-color: #978888;
+}
 
-                    if (password_verify($passwordFromPost, $hashedPasswordFromDB)) {
-                        // Valid password
-                        $_SESSION['userID'] = htmlspecialchars($row["UserID"]);
-                        header('Location: ../userProfile/userProfile.php?UserID='.htmlspecialchars($row['UserID']));
-                        exit();
-                    } else {
-                        // Invalid password
-                        $incorrect = TRUE;
-                    }
-                } else {
-                    $row = $result->fetch_assoc();
-                    echo "Duplicate account found, ID:" . htmlspecialchars($row["UserID"]) . ". Whoops, this one is on us.";
-                }
+#journeys{
+	display:none;
+}
 
-                $conn->close();
-            }
-        ?>
+#statistics{
+	display: none;
+}
 
-        <div id="login">
-            <h2>Login</h2>
-            <br>
-            <?php if($incorrect){echo "<span id=\"incorrectMessage\"> ! Email or password is incorrect. Please try again</span><br><br>";}?>
-            <form action="login.php" method="post">
-                <input name="email" type="email" class="form-control form-control-lg" placeholder="Email" required><br>
-                <input name="password" type="password" class="form-control form-control-lg" placeholder="Password" required><br>
-                <button name="loginSubmit" type="submit" class="btn btn-primary">Login</button>
-            </form>
-            <button type="button" class="btn btn-link" onclick="window.location.href = '../register/register.php';">New User? Register here</button>
-        </div>
+#settings{
+	display:none;
+	padding-bottom: 2em;
+	margin-bottom: 1em;
+}
 
-        <!-- <footer>View our cookie policy: https://www.termsfeed.com/cookies-policy/044a9bc1485cc0cf54b509fedb4fa29b</footer> -->
-    </script>
-    </body>
-</html>
+#wrongPass{
+	color:red;
+	background-color: white;
+	padding:0.5em;
+	border-radius: 0.5em;
+}
+
+#detailChange{
+	color:#00c500;
+	background-color: white;
+	padding:0.5em;
+	border-radius: 0.5em;
+}
+
+#detailChangeFailed{
+	color:#c5c014;
+	background-color: white;
+	padding:0.5em;
+	border-radius: 0.5em;
+}

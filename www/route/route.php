@@ -1,5 +1,4 @@
 <?php session_start();?>
-<!-- <?php if(session_status() == 0){session_start();} ?> -->
 
 <!DOCTYPE HTML>
 <html lang="en">
@@ -17,69 +16,73 @@
         <?php include '../navbar/navbar.php';?>
 
         <?php
+            if(isset($_GET["userID"]) && isset($_GET["journeyID"])){
+                $servername = "localhost";
+                $username = "Ollie";
+                $password = "databasepassword";
+                $dbname = "main";
 
-            $servername = "localhost";
-            $username = "Ollie";
-            $password = "databasepassword";
-            $dbname = "main";
+                // Create connection
+                $conn = new mysqli($servername, $username, $password, $dbname);
+                // Check connection
+                if ($conn->connect_error) {
+                    die("Connection failed: " . $conn->connect_error);
+                }
 
-            // Create connection
-            $conn = new mysqli($servername, $username, $password, $dbname);
-            // Check connection
-            if ($conn->connect_error) {
-                die("Connection failed: " . $conn->connect_error);
-            }
+                $sql = "SELECT * FROM tbljourneys WHERE JourneyID = " . $conn -> real_escape_string($_GET["journeyID"]);
+                $result = $conn->query($sql);
+                if ($result->num_rows == 0){
+                    echo "Journey not found, please return to the previous page and try the link again";
+                    exit(1);
+                } elseif ($result->num_rows == 1) {
+                    // set values for journey
+                    $row = $result->fetch_assoc();
+                    $startDisplayName = htmlspecialchars($row['StartDisplayName']);
+                    $endDisplayName = htmlspecialchars($row['EndDisplayName']);
+                } else {
+                    echo "Duplicate ID found, ID:" . htmlspecialchars($_GET["journeyID"]) . ". Whoops, this one is on us.";
+                    exit();
+                }
 
-            $sql = "SELECT * FROM tbljourneys WHERE JourneyID = " . $conn -> real_escape_string($_GET["JourneyID"]);
-            $result = $conn->query($sql);
-            if ($result == null){
-                echo "Journey not found, please return to the previous page and try the link again";
-                exit(1);
-            } elseif ($result->num_rows == 1) {
-                // set values for journey
-                $row = $result->fetch_assoc();
-                $startDisplayName = htmlspecialchars($row['StartDisplayName']);
-                $endDisplayName = htmlspecialchars($row['EndDisplayName']);
-            } else {
-                echo "Duplicate ID found, ID:" . htmlspecialchars($_GET["JourneyID"]) . ". Whoops, this one is on us.";
+                // $result = $conn->query("SELECT COUNT(*) as total FROM tbljourneysusers WHERE JourneyID = " . $conn -> real_escape_string($_GET['JourneyID']));
+                // $row = $result->fetch_assoc();
+                // echo $row['total'];
+
+                $start = explode(",", $row['StartLatLong']);
+                $end = explode(",", $row['EndLatLong']);
+
+                $sql = "SELECT * FROM tbljourneysusers WHERE (UserID = ". htmlspecialchars($_GET["userID"]) ." AND JourneyID = ". htmlspecialchars($_GET["journeyID"]) .")";
+                $result = $conn->query($sql);
+                if ($result->num_rows == 1) {
+                    // assign the covered distance
+                    $row = $result->fetch_assoc();
+                    $distanceCovered = $row["DistanceTravelled"]*10;
+                } elseif ($result->num_rows == 0) {
+                    echo "No data for this user was found on this journey, please return to the previous page and try the link again";
+                    exit();
+                } else {
+                    echo "Duplicate ID found, ID:" . htmlspecialchars($_GET["JourneyID"]) . ". Whoops, this one is on us.";
+                    exit();
+                }
+                
+                $conn->close();
+
+                //{lat: 50.066093, lng: -5.715103}
+
+                // if(isset($_REQUEST['distanceUpdateSubmit']))
+                // {
+                //     $distanceCovered += $_POST['distanceUpdate']*1000;
+                // }
+                
+                echo "<script>" .
+                "var _origin = {lat:".$start[0].",lng:".$start[1]."};" .
+                "var _destination = {lat:".$end[0].",lng:".$end[1]."};" .
+                "var distance = " . $distanceCovered . ";" .
+                "</script>";
+            }else{
+                echo "One or both of UserID/JourneyID have not been specified, please return to the previous page and try the link again!";
                 exit();
             }
-
-            // $result = $conn->query("SELECT COUNT(*) as total FROM tbljourneysusers WHERE JourneyID = " . $conn -> real_escape_string($_GET['JourneyID']));
-            // $row = $result->fetch_assoc();
-            // echo $row['total'];
-
-            $start = explode(",", $row['StartLatLong']);
-            $end = explode(",", $row['EndLatLong']);
-
-            $sql = "SELECT * FROM tbljourneysusers WHERE (UserID = ". htmlspecialchars($_GET["UserID"]) ." AND JourneyID = ". htmlspecialchars($_GET["JourneyID"]) .")";
-            $result = $conn->query($sql);
-            if ($result->num_rows == 1) {
-                // assign the covered distance
-                $row = $result->fetch_assoc();
-                $distanceCovered = $row["DistanceTravelled"]*10;
-            } elseif ($result->num_rows == 0) {
-                echo "No data for this user was found on this journey, please return to the previous page and try the link again";
-                exit();
-            } else {
-                echo "Duplicate ID found, ID:" . htmlspecialchars($_GET["JourneyID"]) . ". Whoops, this one is on us.";
-                exit();
-            }
-            
-            $conn->close();
-
-            //{lat: 50.066093, lng: -5.715103}
-
-            // if(isset($_REQUEST['distanceUpdateSubmit']))
-            // {
-            //     $distanceCovered += $_POST['distanceUpdate']*1000;
-            // }
-            
-            echo "<script>" .
-            "var _origin = {lat:".$start[0].",lng:".$start[1]."};" .
-            "var _destination = {lat:".$end[0].",lng:".$end[1]."};" .
-            "var distance = " . $distanceCovered . ";" .
-            "</script>";
         ?>
 
         <div id="map"></div>
@@ -111,8 +114,8 @@
         <div id="config">
             <form action="addUpdate.php" method="post">
                 <div class="form-group">
-                  <input name="journeyID" type="hidden" value="<?php echo htmlspecialchars($_GET['JourneyID'])?>">
-                  <input name="userID" type="hidden" value="<?php echo htmlspecialchars($_GET['UserID'])?>">
+                  <input name="journeyID" type="hidden" value="<?php echo htmlspecialchars($_GET['journeyID'])?>">
+                  <input name="userID" type="hidden" value="<?php echo htmlspecialchars($_GET['userID'])?>">
                   <input name="distanceCovered" type="hidden" value="<?php echo $distanceCovered?>">
                   <label for="distanceInput">Distance travelled (Kilometers)</label>
                   <input name="distanceUpdate" type="number" class="form-control" id="distanceInput" aria-describedby="distanceHelp" placeholder="How far did you go?" required>

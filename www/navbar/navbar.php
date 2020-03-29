@@ -2,12 +2,8 @@
 	<link rel="stylesheet" href="../navbar/navbar.css">
 </head>
 <body>
-	<div id="navbar" class="container-fluid align-middle">
+	<div id="navbar" class="container-fluid">
 		<div class="row">
-			<div class="col-5"></div>
-			<div class="col-2">
-				<a href="/"><button class="nav-button">COVID challenges</button></a>
-			</div>
 			<?php
 				if(isset($_SESSION['userID'])){
 					$servername = "localhost";
@@ -23,7 +19,7 @@
 
 		            $sql = "SELECT DisplayName FROM tblusers WHERE UserID = " . $conn -> real_escape_string($_SESSION["userID"]);
 		            $result = $conn->query($sql);
-		            if ($result == null){
+		            if ($result->num_rows == 0){
 		                echo "The logged in user was not found";
 		                exit(1);
 		            } elseif ($result->num_rows == 1) {
@@ -33,16 +29,25 @@
 		                echo "Duplicate ID found, ID:" . htmlspecialchars($_SESSION["userID"]) . ". Whoops, this one is on us.";
 		                exit();
 		            }
+
 					// User is logged in
-					echo "<div class=\"col-3\"></div>
-					<div class=\"col-2\">
-						<a href=\"../userProfile/userProfile.php?UserID=". $_SESSION["userID"] ."\"><button class=\"nav-button nav-button-right\">". $row["DisplayName"] ."</button></a>
-					</div>";
+					echo "<div class=\"col-4 nav-text\">Logged in as: ". $row['DisplayName'] ."</div>
+					<div class=\"col-2 offset-1\">
+						<a href=\"/\"><button class=\"nav-button\">COVID challenges</button></a>
+					</div>
+					<div class=\"col-4 offset-1\">
+						<form method=\"POST\" action='../login/logout.php'>
+							<input class=\"nav-button nav-button-right\" type=\"submit\" name=\"button1\"  value=\"Logout\">
+						</form> 
+						<a href=\"../userProfile/userProfile.php?userID=". $_SESSION["userID"] ."\"><button class=\"nav-button nav-button-right\">My Profile</button></a>
+					</div>
+					";
 				}else{
 					// User is not logged in
-					
-					echo "<div class=\"col-3\"></div>
-					<div class=\"col-2\">
+					echo "<div class=\"col-2 offset-5\">
+						<a href=\"/\"><button class=\"nav-button\">COVID challenges</button></a>
+					</div>
+					<div class=\"col-2 offset-3\">
 						<a href=\"../login/login.php\"><button class=\"nav-button nav-button-right\">Login</button></a>
 					</div>";
 				}

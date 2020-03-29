@@ -41,7 +41,7 @@
                 }
                 $sql = "SELECT UserID, Password FROM tblusers WHERE Email = '". $conn -> real_escape_string($_POST["email"]) ."'";
                 $result = $conn->query($sql);
-                if ($result === null || $result->num_rows == 0){
+                if ($result->num_rows == 0){
                     //Acount not found
                     $incorrect = TRUE;
                 } elseif ($result->num_rows == 1) {
@@ -53,7 +53,7 @@
                     if (password_verify($passwordFromPost, $hashedPasswordFromDB)) {
                         // Valid password
                         $_SESSION['userID'] = htmlspecialchars($row["UserID"]);
-                        header('Location: ../userProfile/userProfile.php?UserID='.htmlspecialchars($row['UserID']));
+                        header('Location: ../userProfile/userProfile.php?userID='.htmlspecialchars($row['UserID']));
                         exit();
                     } else {
                         // Invalid password

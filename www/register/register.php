@@ -1,5 +1,4 @@
 <?php session_start();?>
-<!-- <?php if(session_status() == 0){session_start();} ?> -->
 
 <!DOCTYPE HTML>
 <html lang="en">
@@ -74,7 +73,7 @@
                         //Log user in
                         $sql = "SELECT UserID, Password FROM tblusers WHERE Email = '". $conn -> real_escape_string($_POST["email"]) ."'";
                         $result = $conn->query($sql);
-                        if ($result === null || $result->num_rows == 0){
+                        if ($result->num_rows == 0){
                             //Acount not found
                             echo "Account not successfully created";
                         } elseif ($result->num_rows == 1) {

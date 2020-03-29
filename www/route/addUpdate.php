@@ -20,6 +20,7 @@
 	// $newDistance = 24700;
 	// $newDistance = 250000;
 	$sql = "UPDATE tbljourneysusers SET DistanceTravelled = ". $newDistance ." WHERE JourneyID = ". $conn -> real_escape_string($_POST["journeyID"]) ." AND `UserID` = ". $conn -> real_escape_string($_POST["userID"]);
+	echo $sql;
 	if ($conn->query($sql) === TRUE) {
 	    echo "Record updated successfully";
 	} else {
@@ -27,7 +28,7 @@
 	}
 
 	$conn->close();
-	header('Location: route.php?JourneyID='.htmlspecialchars($_POST['journeyID']).'&UserID='.htmlspecialchars($_POST['userID']));
+	header('Location: route.php?journeyID='.htmlspecialchars($_POST['journeyID']).'&userID='.htmlspecialchars($_POST['userID']));
 ?>
 </body>
 </html>
