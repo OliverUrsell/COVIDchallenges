@@ -63,7 +63,7 @@
             $updateSuccess = FALSE;
             if(isset($_POST['apply'])){
                 $edited = TRUE;
-                if(TRUE){
+                if(password_verify($_POST['validationPassword'], $row['Password'])){
                     $passValid = TRUE;
                     if($_POST['public'] == "Public"){
                         $public = 1;
@@ -151,12 +151,13 @@
                         <input type="password" style="display:none">
                         <div class="form-group row">
                             <div class="col-2">
-                                <label for="exampleFormControlSelect1">Privacy settings:</label>
+                                <label for="privacy">Privacy settings:</label>
                             </div>
                             <div class="col-2">
-                                <select name="public" class="form-control" id="exampleFormControlSelect1">
-                                    <option><?php if($row["Public"] == 1){echo"Public";}else{echo "Private";}?></option>
-                                    <option><?php if($row["Public"] == 0){echo"Public";}else{echo "Private";}?></option>
+                                <select name="public" class="form-control" id="privacy">
+                                    <?php if($updateSuccess){$newValue = $public;}else{$newValue = $row["Public"];} ?>
+                                    <option><?php if($newValue == 1){echo"Public";}else{echo "Private";}?></option>
+                                    <option><?php if($newValue == 0){echo"Public";}else{echo "Private";}?></option>
                                 </select>
                             </div>
                             <div class="col-8">
@@ -171,13 +172,12 @@
                         <div class="row">
                             <div class="col">
                                 <input name="password" type="password" class="form-control" placeholder="New Password"
-                                 autocomplete="off"><br>
+                                 autocomplete="off"><small class="form-text text-muted">Leave password blank to keep your old one</small>
                             </div>
                             <div class="col">
-                                <input name="password2" type="password" class="form-control" placeholder="Re-type New Password"><br>
+                                <input name="password2" type="password" class="form-control" placeholder="Re-type New Password"><br><br>
                             </div>
                         </div>
-                        <small id="emailHelp" class="form-text text-muted">Leave empty to keep old password</small>
                         <input name="displayName" type="text" class="form-control" placeholder="Display Name" value="<?php if($updateSuccess){echo htmlspecialchars($newDisplayName);}else{echo htmlspecialchars($row["DisplayName"]);} ?>" required><br>
                         <div class="row">
                             <div class="col">
