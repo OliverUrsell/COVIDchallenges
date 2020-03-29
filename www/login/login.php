@@ -42,7 +42,7 @@
                 $sql = "SELECT UserID, Password FROM tblusers WHERE Email = '". $conn -> real_escape_string($_POST["email"]) ."'";
                 $result = $conn->query($sql);
                 if ($result->num_rows == 0){
-                    //Acount not found
+                    //Account not found
                     $incorrect = TRUE;
                 } elseif ($result->num_rows == 1) {
                     $row = $result->fetch_assoc();
