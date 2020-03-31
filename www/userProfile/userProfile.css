@@ -1,11 +1,32 @@
 body, html {
-  background-color: #0f1007;
+  height: 100%;
+  background-color: black;
+  margin-top: -3vh;
   color:white;
+}
+
+.bg { 
+  /* The image used */
+  position:fixed;
+  background-image: url("mountain.jpg");
+  top:0;
+  bottom:0;
+  left:0;
+  right:0;
+
+  /* Full height */
+  height: 100%;
+
+  /* Center and scale the image nicely */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 .block{
 	width:100%;
 	margin-top: 5vh;
+	margin-bottom: 5vh;
 	padding: 1em;
 	background-color: #3b3434;
 }
@@ -46,7 +67,7 @@ body, html {
 	border-bottom: solid 0.15em black; background-color: #978888;
 }
 
-#journeys{
+#challenges{
 	display:none;
 }
 
@@ -79,4 +100,36 @@ body, html {
 	background-color: white;
 	padding:0.5em;
 	border-radius: 0.5em;
+}
+
+.challenge{
+	background-color: #712b2b;
+	color:white;
+	padding: 1em;
+	margin-top: 1em;
+	border:solid black;
+	/*font-family: 'Spicy Rice', cursive;*/
+}
+
+.progressBar{
+	height: 2em;
+	background-color: #4e0a0a;
+	border: solid black 0.1em;
+	padding:0;
+	margin-right: 2em;
+}
+
+.progressBarContents{
+	padding:0;
+	margin-top:0em;
+	height:100%;
+	width:0%;
+	background-color: blue;
+	font-size: 1.5em;
+	line-height: 120%;
+	-moz-transform: scale(-1, 1);
+	-webkit-transform: scale(-1, 1);
+	-o-transform: scale(-1, 1);
+	-ms-transform: scale(-1, 1);
+	transform: scale(-1, 1);
 }

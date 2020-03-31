@@ -1,11 +1,13 @@
 body, html {
   height: 100%;
+  margin-top: -3vh;
   background-color: black;
+  overflow-y: hidden;
 }
 
 .bg { 
   /* The image used */
-  background-image: url("https://mdbootstrap.com/img/Photos/Others/images/91.jpg");
+  background-image: url("walking.jpg");
 
   /* Full height */
   height: 100%;

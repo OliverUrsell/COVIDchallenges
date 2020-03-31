@@ -73,7 +73,7 @@ function calculateAndDisplayRoute(directionsService, directionsDisplay) {
       var distanceTotal = google.maps.geometry.spherical.computeLength(polyline.getPath().getArray());
       $("#letterValues").html(distance/1000 + " / " + Math.floor(distanceTotal/10)/100 + "Km");
       $("#progressBarContents").animate({width: String((distance/distanceTotal)*100) + 2 + "%"}, 4000, function(){
-		$("#progressBarContents").animate({width: String((distance/distanceTotal)*100) + "%"}, 200, function(){
+		  $("#progressBarContents").animate({width: String((distance/distanceTotal)*100) + "%"}, 200, function(){
 			$("#letterValues").show("fast");
 		});
 	  });

@@ -8,11 +8,12 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
         <link rel="stylesheet" href="userProfile.css">
         <script src="../jquery.min.js"></script>
+        <script   src="https://code.jquery.com/color/jquery.color-2.1.2.min.js"   integrity="sha256-H28SdxWrZ387Ldn0qogCzFiUDDxfPiNIyJX7BECQkDE="   crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     </head>
     <body>
-
+        <div class="bg"></div>        
         <?php
             include_once("../navbar/navbar.php");
 
@@ -61,7 +62,8 @@
             $edited = FALSE;
             $passValid = FALSE;
             $updateSuccess = FALSE;
-            if(isset($_POST['apply'])){
+            //Check logged in so can;t just send a POST request
+            if(isset($_POST['apply']) && $loggedIn){
                 $edited = TRUE;
                 if(password_verify($_POST['validationPassword'], $row['Password'])){
                     $passValid = TRUE;
@@ -120,7 +122,7 @@
                     </div>
                     <div class="row">
                         <div class="col">
-                            <button class="category selected" divid="journeys">Challenges</button>
+                            <button class="category selected" divid="challenges">Challenges</button>
                         </div>
                         <div class="col">
                             <button class="category" divid="statistics">Statistics</button>
@@ -137,12 +139,7 @@
                 </div>
             </div>
             <div class="row">
-                <div id="journeys" class="block col-10 block offset-1">
-                    Journey Div
-                </div>
-                <div id="statistics" class="block col-10 block offset-1">
-                    Total distance travelled: 
-                </div>
+                <?php // Settings stays at the top as it has to access values from first table query?>
                 <div id="settings" class="block col-10 block offset-1">
                     Settings
                     <form action="userProfile.php?userID=<?php echo htmlspecialchars($_GET['userID']); ?>" method="post" oninput='password2.setCustomValidity(password2.value != password.value ? "Passwords do not match." : "");' autocomplete="off"><br>
@@ -153,14 +150,14 @@
                             <div class="col-2">
                                 <label for="privacy">Privacy settings:</label>
                             </div>
-                            <div class="col-2">
+                            <div class="col-4">
                                 <select name="public" class="form-control" id="privacy">
                                     <?php if($updateSuccess){$newValue = $public;}else{$newValue = $row["Public"];} ?>
                                     <option><?php if($newValue == 1){echo"Public";}else{echo "Private";}?></option>
                                     <option><?php if($newValue == 0){echo"Public";}else{echo "Private";}?></option>
                                 </select>
                             </div>
-                            <div class="col-8">
+                            <div class="col-6">
                                 Public: Other users / guests can view your profile, including public challenges and combined statistics of public adventures.<br>Private: Other users / guests cannot view your profile, and cannot access public or private challenges through it.
                             </div>
                         </div>
@@ -188,6 +185,57 @@
                             </div>
                         </div>
                     </form>
+                </div>
+                <div id="challenges" class="col-10 offset-1 block">
+                    <button class="btn btn-success">+ Add New Challenge</button>
+                    <div class="challenge">
+                        <div class="row">
+                            <div class="col offset-1">
+                                Cycling Land's End to John O'Groats
+                            </div>
+                        </div>
+                        <div class="row"><br></div>
+                        <div class="row progressBarContainer">
+                            <div class="progressBar col-6 offset-1">
+                                <div class="progressBarContents" distance="1500" distanceTotal="5000">
+                                    🚲
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="challenge">
+                        <div class="row">
+                            <div class="col offset-1">
+                                Running Land's End to John O'Groats
+                            </div>
+                        </div>
+                        <div class="row"><br></div>
+                        <div class="row progressBarContainer">
+                            <div class="progressBar col-6 offset-1">
+                                <div class="progressBarContents" distance="6000" distanceTotal="5000">
+                                    🏃
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="challenge">
+                        <div class="row">
+                            <div class="col offset-1">
+                                Rowing Land's End to John O'Groats
+                            </div>
+                        </div>
+                        <div class="row"><br></div>
+                        <div class="row progressBarContainer">
+                            <div class="progressBar col-6 offset-1">
+                                <div class="progressBarContents" distance="5005" distanceTotal="5000">
+                                    🚣
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="statistics" class="block col-10 block offset-1">
+                    Total distance travelled: 
                 </div>
             </div>
         </div>

@@ -23,7 +23,7 @@
 
             if(isset($_SESSION["userID"])) {
                 //User is already logged in
-                header('Location: ../userProfile/userProfile.php?UserID='.htmlspecialchars($_SESSION["userID"]));
+                header('Location: ../userProfile/userProfile.php?userID='.htmlspecialchars($_SESSION["userID"]));
                 exit();
             }
 
