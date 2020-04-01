@@ -1,8 +1,10 @@
 body, html {
   height: 100%;
-  background-color: black;
-  margin-top: -3vh;
-  color:white;
+  color:black;
+}
+
+.container-fluid{
+	color:white;
 }
 
 .bg { 
@@ -13,6 +15,7 @@ body, html {
   bottom:0;
   left:0;
   right:0;
+  z-index: -1;
 
   /* Full height */
   height: 100%;
@@ -28,24 +31,25 @@ body, html {
 	margin-top: 5vh;
 	margin-bottom: 5vh;
 	padding: 1em;
-	background-color: #3b3434;
+	background-color: #c1c1c1;
 }
 
 #name{
 	position: relative;
-	background-color: #3b3434;
+	/*background-color: #3b3434;*/
+	background-color: #c1c1c1;
 	margin-bottom: 0.5em;
 	font-size: 3vw;
 }
 
 #selector{
-	padding-bottom: 0;
+	/*padding-bottom: 0;*/
 }
 
 .category{
 	color:white;
 	position:relative;
-	background-color: #625858;
+	background-color: #28a745;
 	height:3em;
 	border:none;
 	text-decoration: none;
@@ -60,11 +64,12 @@ body, html {
 
 /* Animations */
 @keyframes category-border-raise {
-    to   {border-bottom:solid 0.15em black; background-color: #978888;}
+    to   {border-bottom:solid 0.15em black; background-color: #1f6d31;}
 }
 
 .selected{
-	border-bottom: solid 0.15em black; background-color: #978888;
+	/*border-bottom: solid 0.15em black; background-color: #978888;*/
+	border-bottom: solid 0.15em black; background-color: #1f6d31;
 }
 
 #challenges{
@@ -103,7 +108,7 @@ body, html {
 }
 
 .challenge{
-	background-color: #712b2b;
+	background-color: #205e2e;
 	color:white;
 	padding: 1em;
 	margin-top: 1em;
@@ -113,23 +118,43 @@ body, html {
 
 .progressBar{
 	height: 2em;
-	background-color: #4e0a0a;
+	background-color: #c1c1c1;
 	border: solid black 0.1em;
 	padding:0;
-	margin-right: 2em;
+	margin-right: 1em;
+	margin-left: 1em;
 }
 
 .progressBarContents{
 	padding:0;
 	margin-top:0em;
-	height:100%;
+	margin-left: -0.5px;
+	height:101%;
 	width:0%;
-	background-color: blue;
+	background-color: #6060e0;
 	font-size: 1.5em;
-	line-height: 120%;
+	line-height: 110%;
 	-moz-transform: scale(-1, 1);
 	-webkit-transform: scale(-1, 1);
 	-o-transform: scale(-1, 1);
 	-ms-transform: scale(-1, 1);
 	transform: scale(-1, 1);
+}
+
+.openChallenge{
+	height: 100%;
+	width:100%;
+	border:none;
+	background-color: #4c8359;
+	text-decoration: none;
+}
+
+.openChallenge:hover {
+    -webkit-animation: challenge-border-raise 0.2s forwards; /*for less modern browsers*/
+    animation: challenge-border-raise 0.2s forwards; /*Inifinite*/
+}
+
+/* Animations */
+@keyframes challenge-border-raise {
+    to   {border-bottom:solid 0.15em black; background-color:yellow;}
 }

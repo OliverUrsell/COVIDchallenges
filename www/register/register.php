@@ -80,7 +80,7 @@
                             // Account ID found
                             $row = $result->fetch_assoc();
                             $_SESSION['userID'] = htmlspecialchars($row["UserID"]);
-                            header('Location: ../userProfile/userProfile.php?UserID='.htmlspecialchars($row['UserID']));
+                            header('Location: ../userProfile/userProfile.php?userID='.htmlspecialchars($row['UserID']));
                             exit();
                         } else {
                             $row = $result->fetch_assoc();

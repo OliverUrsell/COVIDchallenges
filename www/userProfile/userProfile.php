@@ -18,7 +18,7 @@
             include_once("../navbar/navbar.php");
 
             $loggedIn = FALSE;
-            if(isset($_SESSION['userID'])) {
+            if(isset($_SESSION['userID']) && isset($_GET["userID"])) {
                 // User is logged in
                 if($_SESSION['userID'] == $_GET['userID']){
                     // this is their profile
@@ -37,25 +37,29 @@
                 if ($conn->connect_error) {
                     die("Connection failed: " . $conn->connect_error);
                 }
-
-                $sql = "SELECT * FROM tblusers WHERE UserID = " . $conn -> real_escape_string($_GET["userID"]);
-                $result = $conn->query($sql);
-                if ($result->num_rows == 0){
-                    echo "This user could not be found, please try again";
-                    exit();
-                } elseif ($result->num_rows == 1) {
-                    $row = $result->fetch_assoc();
-                    if($row['Public'] == 0 && !$loggedIn){
-                        //This profile is not public, and we're not the owner
-                        echo "This is a private profile. You must be the owner to view it. This user can make their profile public by going to their Profile -> Settings -> Privacy Settings";
+                if(isset($_GET["userID"]) && $_GET["userID"] != ""){
+                    $sql = "SELECT * FROM tblusers WHERE UserID = " . $conn -> real_escape_string($_GET["userID"]);
+                    $result = $conn->query($sql);
+                    if ($result->num_rows == 0){
+                        echo "This user could not be found, please try again";
+                        exit();
+                    } elseif ($result->num_rows == 1) {
+                        $row = $result->fetch_assoc();
+                        if($row['Public'] == 0 && !$loggedIn){
+                            //This profile is not public, and we're not the owner
+                            echo "This is a private profile. You must be the owner to view it. This user can make their profile public by going to their Profile -> Settings -> Privacy Settings";
+                            exit();
+                        }
+                    } else {
+                        echo "Duplicate ID found, ID:" . htmlspecialchars($_GET["userID"]) . ". Whoops, this one is on us.";
                         exit();
                     }
-                } else {
-                    echo "Duplicate ID found, ID:" . htmlspecialchars($_GET["userID"]) . ". Whoops, this one is on us.";
+                }else{
+                    echo "This link has not specified a UserID, please return to the previous page and try again.";
                     exit();
                 }
             }else{
-                echo "ERROR:The UserID has not been specified, please return to the previous link and try again.";
+                echo "The UserID has not been specified, please return to the previous link and try again.";
                 exit();
             }
 
@@ -116,7 +120,22 @@
                             }
                         }?>
                     <div id="name" class="row">
-                        <div class="col-11 offset-1">
+                        <div class="col-2">
+                            <img src="
+                            <?php
+                                $withoutExtension = "profilePictures/". $_GET["userID"];
+                                if(file_exists($withoutExtension .".png")){
+                                    echo $withoutExtension .".png";
+                                }elseif(file_exists($withoutExtension .".jpg")){
+                                    echo $withoutExtension .".jpg";
+                                }elseif(file_exists($withoutExtension .".gif")){
+                                    echo $withoutExtension .".gif";
+                                }else{
+                                    echo "profilePictures/default.png";
+                                }
+                            ?>" height="100" width="100" alt="<?php if($updateSuccess){echo htmlspecialchars($newDisplayName);}else{echo htmlspecialchars($row["DisplayName"]);}?>'s profile picture"/>
+                        </div>
+                        <div class="col-8 offset-2">
                             <?php if($updateSuccess){echo htmlspecialchars($newDisplayName);}else{echo htmlspecialchars($row["DisplayName"]);} ?>
                         </div>
                     </div>
@@ -142,6 +161,14 @@
                 <?php // Settings stays at the top as it has to access values from first table query?>
                 <div id="settings" class="block col-10 block offset-1">
                     Settings
+
+                    <form action="storeProfilePicture.php" method="post" enctype="multipart/form-data">
+                        <input name="userID" type="hidden" value="<?php echo $_GET["userID"]; ?>">
+                        Change profile picture:
+                        <input type="file" name="image" accept="image/*">
+                        <input type="submit">
+                    </form>
+
                     <form action="userProfile.php?userID=<?php echo htmlspecialchars($_GET['userID']); ?>" method="post" oninput='password2.setCustomValidity(password2.value != password.value ? "Passwords do not match." : "");' autocomplete="off"><br>
                         <input type="text" style="display:none">
                         <input type="email" style="display:none">
@@ -158,7 +185,7 @@
                                 </select>
                             </div>
                             <div class="col-6">
-                                Public: Other users / guests can view your profile, including public challenges and combined statistics of public adventures.<br>Private: Other users / guests cannot view your profile, and cannot access public or private challenges through it.
+                                Public: Other users / guests can view your profile, including public challenges and combined statistics of public adventures.<br><br>Private: Other users / guests cannot view your profile, and cannot access public or private challenges through it.
                             </div>
                         </div>
                         <br>
@@ -178,7 +205,7 @@
                         <input name="displayName" type="text" class="form-control" placeholder="Display Name" value="<?php if($updateSuccess){echo htmlspecialchars($newDisplayName);}else{echo htmlspecialchars($row["DisplayName"]);} ?>" required><br>
                         <div class="row">
                             <div class="col">
-                                <input name="validationPassword" type="password" class="form-control" placeholder="Enter your password to change settings">
+                                <input name="validationPassword" type="password" class="form-control" placeholder="Enter your password to change settings" required>
                             </div>
                             <div class="col">
                                 <button name="apply" type="submit" class="btn btn-warning">Apply</button>
@@ -186,53 +213,181 @@
                         </div>
                     </form>
                 </div>
+
                 <div id="challenges" class="col-10 offset-1 block">
                     <button class="btn btn-success">+ Add New Challenge</button>
-                    <div class="challenge">
-                        <div class="row">
-                            <div class="col offset-1">
-                                Cycling Land's End to John O'Groats
-                            </div>
-                        </div>
-                        <div class="row"><br></div>
-                        <div class="row progressBarContainer">
-                            <div class="progressBar col-6 offset-1">
-                                <div class="progressBarContents" distance="1500" distanceTotal="5000">
-                                    🚲
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="challenge">
-                        <div class="row">
-                            <div class="col offset-1">
-                                Running Land's End to John O'Groats
-                            </div>
-                        </div>
-                        <div class="row"><br></div>
-                        <div class="row progressBarContainer">
-                            <div class="progressBar col-6 offset-1">
-                                <div class="progressBarContents" distance="6000" distanceTotal="5000">
-                                    🏃
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="challenge">
-                        <div class="row">
-                            <div class="col offset-1">
-                                Rowing Land's End to John O'Groats
-                            </div>
-                        </div>
-                        <div class="row"><br></div>
-                        <div class="row progressBarContainer">
-                            <div class="progressBar col-6 offset-1">
-                                <div class="progressBarContents" distance="5005" distanceTotal="5000">
-                                    🚣
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <button class="btn btn-success">+ Create your own challenge</button>
+                    <?php
+
+                        function echoChallengeRow($travelMode, $routeDisplayName, $distance, $totalDistance, $loggedIn, $displayName, $userDistance, $multipleUserID, $journeyID){
+                            echo "<div class=\"challenge\">
+                                    <div class=\"row\">
+                                        <div class=\"col-8\">
+                                            <div class=\"row\">
+                                                <div class=\"col offset-1\">";
+                                                    switch($travelMode){
+                                                        case "BICYCLING":
+                                                            echo "Cycling ";
+                                                            break;
+                                                        case "ROWING":
+                                                            echo "Rowing ";
+                                                            break;
+                                                        case "WALKING":
+                                                            echo "Running ";
+                                                            break;
+                                                    }
+                                                    echo htmlspecialchars($routeDisplayName) ."
+                                                </div>
+                                            </div>
+                                            <div class=\"row\"><br></div>
+                                            <div class=\"row progressBarContentsontainer\">
+                                                <div class=\"progressBar col-9\">
+                                                    <div class=\"progressBarContents\" distance=". htmlspecialchars($distance) ." distanceTotal=". htmlspecialchars($totalDistance) .">";
+                                                        switch($travelMode){
+                                                            case "BICYCLING":
+                                                                echo "🚲";
+                                                                break;
+                                                            case "ROWING":
+                                                                echo "🚣";
+                                                                break;
+                                                            case "WALKING":
+                                                                echo "🏃";
+                                                                break;
+                                                        }
+                                                    echo "</div>
+                                                </div>
+                                            </div>
+                                            <div class=\"row offset-1\">";
+                                                if($loggedIn){
+                                                    echo "You have";
+                                                }else{
+                                                    echo $displayName ." has";
+                                                }
+                                                echo " completed ". $userDistance ."km(s) of this challenge
+                                            </div>
+                                        </div>
+                                        <div class=\"col-3 offset-1\">
+                                            <a href=\"../route/route.php?multipleUserID=". $multipleUserID ."&journeyID=". $journeyID ."\"><button class=\"openChallenge\">Open <img src=\"link.png\" height=\"10px\" width=\"10px\"    ></button></a>
+                                        </div>
+                                    </div>
+                                </div>";
+                        }
+
+
+                        $challengeDisplayed = FALSE; //Keep track to display no challenges message
+
+                        // Select values from tblmultiple users
+                        $sql = "SELECT * FROM tblmultipleusers WHERE UserID = " . $conn -> real_escape_string($_GET["userID"]);
+                        
+                        $multipleUsersResult = $conn->query($sql);
+
+                        if ($multipleUsersResult->num_rows > 0) {
+                            while($multipleUsersRow = $multipleUsersResult->fetch_assoc()) {
+                                // For all values in multiple users where the userID matches this profile
+                                // select value from tbljourneysusers
+                                if($loggedIn){
+                                    $sql = "SELECT * FROM tbljourneysusers WHERE MultipleUserID = " . $conn -> real_escape_string($multipleUsersRow["MultipleUserID"]);
+                                }else{
+                                    $sql = "SELECT * FROM tbljourneysusers WHERE MultipleUserID = " . $conn -> real_escape_string($multipleUsersRow["MultipleUserID"]) ." AND Public = 1";
+                                }
+                                $resultJourneysUsers = $conn->query($sql);
+                                if ($resultJourneysUsers->num_rows == 0){
+                                    // This challenge is private, or there's something wrong
+                                    if($loggedIn){
+                                        echo "Journey not found, there is an error in tbljourneysusers / tblmultipleusers, multiple user ID: ". htmlspecialchars($multipleUsersRow["MultipleUserID"]);
+                                            exit();
+                                    }else{
+                                        //This challenge is private
+                                    }
+                                } elseif ($resultJourneysUsers->num_rows == 1) {
+                                    //Journeys user successfully recieved
+                                    $journeysUsersRow = $resultJourneysUsers->fetch_assoc();
+
+                                    // select value from tbljourneys
+                                    $sql = "SELECT * FROM tbljourneys WHERE JourneyID = " . $conn -> real_escape_string($journeysUsersRow["JourneyID"]);
+                                    $resultJourneys = $conn->query($sql);
+                                    if ($resultJourneys->num_rows == 0){
+                                        echo "Journey not found, there is an error in tbljourneysusers / tbljourneys users, journey ID: ". htmlspecialchars($journeysUsersRow["JourneyID"]);
+                                        exit();
+                                    } elseif ($resultJourneys->num_rows == 1) {
+                                        $journeyRow = $resultJourneys->fetch_assoc();
+
+                                        //Echo challenge row block
+                                        if($journeysUsersRow["Public"] == 1 || $loggedIn){
+
+                                            if($updateSuccess){
+                                                $currentDisplayName = htmlspecialchars($newDisplayName);
+                                            }else{
+                                                $currentDisplayName = htmlspecialchars($row["DisplayName"]);
+                                            }
+
+                                            echoChallengeRow($journeysUsersRow["TravelMode"], $journeyRow["DisplayName"], $journeysUsersRow["DistanceTravelled"]/100, $journeyRow["TotalDistance"]/100,$loggedIn ,$currentDisplayName , $multipleUsersRow["UserDistanceTravelled"]/100, $multipleUsersRow["MultipleUserID"], $journeyRow["JourneyID"]);
+                                            $challengeDisplayed = TRUE;
+                                        }
+
+
+                                    } else {
+                                        echo "Duplicate journey ID found, journey ID:" . htmlspecialchars($journeysUsersRow["JourneyID"]) . ". Whoops, this one is on us.";
+                                        exit();
+                                    }
+
+                                } else {
+                                    echo "Duplicate multiple users ID found, ID:" . htmlspecialchars($multipleUsersRow["MultipleUserID"]) . ". Whoops, this one is on us.";
+                                    exit();
+                                }
+
+                            }
+                        } else {
+                            if($loggedIn){
+                                echo "<br><br>You haven't started any Challenges yet! Get on it!";
+                            }else{
+                                echo "<br><br>";
+                                if($updateSuccess){echo htmlspecialchars($newDisplayName);}else{echo htmlspecialchars($row["DisplayName"]);}
+                                echo " hasn't started any challenges yet, time to set him one????";
+                            }
+                            $challengeDisplayed = TRUE;
+                        }
+
+                        if($challengeDisplayed == FALSE){
+                            //No challange, or no challenge message has been displayed, they're all private or there aren't any
+                            if($loggedIn){
+                                echo "<br><br>You haven't started any Challenges yet! Get on it!";
+                            }else{
+                                echo "<br><br>";
+                                if($updateSuccess){echo htmlspecialchars($newDisplayName);}else{echo htmlspecialchars($row["DisplayName"]);}
+                                echo " hasn't started any challenges yet, time to set him one????";
+                            }
+                        }
+                    ?>
+
+                    <?php
+                    // Example of challenge div
+                    // <div class="challenge">
+                    //     <div class="row">
+                    //         <div class="col-8">
+                    //             <div class="row">
+                    //                 <div class="col offset-1">
+                    //                     Cycling Land's End to John O'Groats
+                    //                 </div>
+                    //             </div>
+                    //             <div class="row"><br></div>
+                    //             <div class="row progressBarContentsontainer">
+                    //                 <div class="progressBar col-9">
+                    //                     <div class="progressBarContents" distance="1500" distanceTotal="5000">
+                    //                         🚲
+                    //                     </div>
+                    //                 </div>
+                    //             </div>
+                    //             <div class="row offset-1">
+                    //                 This user has cycled 300km(s) of this challenge
+                    //             </div>
+                    //         </div>
+                    //         <div class="col-3 offset-1">
+                    //             <a href="../route/route.php?multipleUserID=1&journeyID=1"><button class="openChallenge">Open</button></a>
+                    //         </div>
+                    //     </div>
+                    // </div> 
+                    ?>
                 </div>
                 <div id="statistics" class="block col-10 block offset-1">
                     Total distance travelled: 

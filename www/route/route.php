@@ -33,12 +33,11 @@
                 $result = $conn->query($sql);
                 if ($result->num_rows == 0){
                     echo "Journey not found, please return to the previous page and try the link again";
-                    exit(1);
+                    exit();
                 } elseif ($result->num_rows == 1) {
                     // set values for journey
                     $row = $result->fetch_assoc();
-                    $startDisplayName = htmlspecialchars($row['StartDisplayName']);
-                    $endDisplayName = htmlspecialchars($row['EndDisplayName']);
+                    $displayName = htmlspecialchars($row['DisplayName']);
                 } else {
                     echo "Duplicate ID found, ID:" . htmlspecialchars($_GET["journeyID"]) . ". Whoops, this one is on us.";
                     exit();
@@ -80,7 +79,7 @@
                 "var distance = " . $distanceCovered . ";" .
                 "</script>";
             }else{
-                echo "One or both of UserID/JourneyID have not been specified, please return to the previous page and try the link again!";
+                echo "One or both of MultipleUserID/JourneyID have not been specified, please return to the previous page and try the link again!";
                 exit();
             }
         ?>
@@ -89,7 +88,7 @@
         <div class="container-fluid">
             <div id="routeName" class="row">
                 <div class="col-12">
-                    <?php echo $startDisplayName . " to " . $endDisplayName;?>
+                    <?php echo $displayName;?>
                 </div>
             </div>
             <div id="toFromDisplay" class="row">
@@ -100,6 +99,7 @@
                     There was an error! This should be updated!
                 </div>
             </div>
+            <div id="" class="row">Participants</div>
             <div id="actionButtons" class="row">
                 <div class="col-2 actionButtonContainer input-lg">
                     <div onclick="$('#config').show('fast');" class="actionButton"><img class="img-fluid" src="compassRose.png"></div>
@@ -115,7 +115,7 @@
             <form action="addUpdate.php" method="post">
                 <div class="form-group">
                   <input name="journeyID" type="hidden" value="<?php echo htmlspecialchars($_GET['journeyID'])?>">
-                  <input name="userID" type="hidden" value="<?php echo htmlspecialchars($_GET['multipleUserID'])?>">
+                  <input name="multipleUserID" type="hidden" value="<?php echo htmlspecialchars($_GET['multipleUserID'])?>">
                   <input name="distanceCovered" type="hidden" value="<?php echo $distanceCovered?>">
                   <label for="distanceInput">Distance travelled (Kilometers)</label>
                   <input name="distanceUpdate" type="number" class="form-control" id="distanceInput" aria-describedby="distanceHelp" placeholder="How far did you go?" required>
@@ -130,7 +130,7 @@
         <!-- <footer>View our cookie policy: https://www.termsfeed.com/cookies-policy/044a9bc1485cc0cf54b509fedb4fa29b</footer> -->
 
         <script src="route.js"></script>
-        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAn_3UQjVzZh01LHtMFPnfLFCkKiBK4Joc&callback=initMap">
+        <!-- <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAn_3UQjVzZh01LHtMFPnfLFCkKiBK4Joc&callback=initMap"> -->
     </script>
     </body>
 </html>
