@@ -41,32 +41,32 @@
                     $sql = "SELECT * FROM tblusers WHERE UserID = " . $conn -> real_escape_string($_GET["userID"]);
                     $result = $conn->query($sql);
                     if ($result->num_rows == 0){
-                        echo "This user could not be found, please try again";
+                        echo "<div id=\"name\">This user could not be found, please try again</div>";
                         exit();
                     } elseif ($result->num_rows == 1) {
                         $row = $result->fetch_assoc();
                         if($row['Public'] == 0 && !$loggedIn){
                             //This profile is not public, and we're not the owner
-                            echo "This is a private profile. You must be the owner to view it. This user can make their profile public by going to their Profile -> Settings -> Privacy Settings";
+                            echo "<div id=\"name\">This is a private profile. You must be the owner to view it. This user can make their profile public by going to their Profile -> Settings -> Privacy Settings</div>";
                             exit();
                         }
                     } else {
-                        echo "Duplicate ID found, ID:" . htmlspecialchars($_GET["userID"]) . ". Whoops, this one is on us.";
+                        echo "<div id=\"name\">Duplicate ID found, ID:" . htmlspecialchars($_GET["userID"]) . ". Whoops, this one is on us.<\div>";
                         exit();
                     }
                 }else{
-                    echo "This link has not specified a UserID, please return to the previous page and try again.";
+                    echo "<div id=\"name\">This link has not specified a UserID, please return to the previous page and try again.</div>";
                     exit();
                 }
             }else{
-                echo "The UserID has not been specified, please return to the previous link and try again.";
+                echo "<div id=\"name\">The UserID has not been specified, please return to the previous link and try again.</div>";
                 exit();
             }
 
             $edited = FALSE;
             $passValid = FALSE;
             $updateSuccess = FALSE;
-            //Check logged in so can;t just send a POST request
+            //Check logged in so can't just send a POST request
             if(isset($_POST['apply']) && $loggedIn){
                 $edited = TRUE;
                 if(password_verify($_POST['validationPassword'], $row['Password'])){
@@ -185,7 +185,7 @@
                                 </select>
                             </div>
                             <div class="col-6">
-                                Public: Other users / guests can view your profile, including public challenges and combined statistics of public adventures.<br><br>Private: Other users / guests cannot view your profile, and cannot access public or private challenges through it.
+                                Public: Other users / guests can view your profile, including public challenges and combined statistics of public adventures.<br><br>Private: Other users / guests cannot view your profile, and cannot access public or private challenges through it. Anyone doing a challenge with you can see your record in that challenge, but cannot view your user profile
                             </div>
                         </div>
                         <br>
@@ -219,7 +219,7 @@
                     <button class="btn btn-success">+ Create your own challenge</button>
                     <?php
 
-                        function echoChallengeRow($travelMode, $routeDisplayName, $distance, $totalDistance, $loggedIn, $displayName, $userDistance, $multipleUserID, $journeyID){
+                        function echoChallengeRow($travelMode, $routeDisplayName, $distance, $totalDistance, $loggedIn, $displayName, $userDistance, $multipleUserID){
                             echo "<div class=\"challenge\">
                                     <div class=\"row\">
                                         <div class=\"col-8\">
@@ -267,7 +267,7 @@
                                             </div>
                                         </div>
                                         <div class=\"col-3 offset-1\">
-                                            <a href=\"../route/route.php?multipleUserID=". $multipleUserID ."&journeyID=". $journeyID ."\"><button class=\"openChallenge\">Open <img src=\"link.png\" height=\"10px\" width=\"10px\"    ></button></a>
+                                            <a href=\"../route/route.php?multipleUserID=". $multipleUserID ."\"><button class=\"openChallenge\">Open <img src=\"link.png\" height=\"10px\" width=\"10px\"    ></button></a>
                                         </div>
                                     </div>
                                 </div>";
@@ -321,7 +321,7 @@
                                                 $currentDisplayName = htmlspecialchars($row["DisplayName"]);
                                             }
 
-                                            echoChallengeRow($journeysUsersRow["TravelMode"], $journeyRow["DisplayName"], $journeysUsersRow["DistanceTravelled"]/100, $journeyRow["TotalDistance"]/100,$loggedIn ,$currentDisplayName , $multipleUsersRow["UserDistanceTravelled"]/100, $multipleUsersRow["MultipleUserID"], $journeyRow["JourneyID"]);
+                                            echoChallengeRow($multipleUsersRow["TravelMode"], $journeyRow["DisplayName"], $journeysUsersRow["DistanceTravelled"]/100, $journeyRow["TotalDistance"]/100,$loggedIn ,$currentDisplayName , $multipleUsersRow["UserDistanceTravelled"]/100, $multipleUsersRow["MultipleUserID"]);
                                             $challengeDisplayed = TRUE;
                                         }
 
@@ -361,7 +361,7 @@
                     ?>
 
                     <?php
-                    // Example of challenge div
+                    // Example of challenge div, inside php so you can't view it from inspector
                     // <div class="challenge">
                     //     <div class="row">
                     //         <div class="col-8">

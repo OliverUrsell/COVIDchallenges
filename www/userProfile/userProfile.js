@@ -1,5 +1,3 @@
-
-
 currentDiv = $(".selected");
 $("#" + currentDiv.attr("divid")).show();
 

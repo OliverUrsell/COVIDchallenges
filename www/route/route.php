@@ -16,7 +16,7 @@
         <?php include '../navbar/navbar.php';?>
 
         <?php
-            if(isset($_GET["multipleUserID"]) && isset($_GET["journeyID"])){
+            if(isset($_GET["multipleUserID"])){
                 $servername = "localhost";
                 $username = "Ollie";
                 $password = "databasepassword";
@@ -29,17 +29,56 @@
                     die("Connection failed: " . $conn->connect_error);
                 }
 
-                $sql = "SELECT * FROM tbljourneys WHERE JourneyID = " . $conn -> real_escape_string($_GET["journeyID"]);
+                $loggedIn = FALSE;
+                $mainUserLoggedIn = FALSE; // Calculated when the data from tbljourneysusers is fetched
+                if(isset($_SESSION['userID'])) {
+                    // User is logged in
+                    $sql = "SELECT COUNT(UserID) as Total FROM `tblmultipleusers` WHERE (UserID=". $conn->real_escape_string($_SESSION["userID"]) ." AND MultipleUserID=". $conn->real_escape_string($_GET["multipleUserID"]) .")";
+                    $result = $conn->query($sql);
+                    if($result->fetch_assoc()["Total"] == 1){
+                        // they are a member of this challenge
+                        $loggedIn = TRUE;
+                    }
+                }
+
+                $sql = "SELECT * FROM tbljourneysusers WHERE MultipleUserID = ". $conn->real_escape_string($_GET["multipleUserID"]);
+                $result = $conn->query($sql);
+                if ($result->num_rows == 1) {
+                    //Check to see if the user is logged in
+                    $journeysUsersRow = $result->fetch_assoc();
+                    if($journeysUsersRow["Public"] == 0 && !$loggedIn){
+                        echo "This challenge is private";
+                        exit();
+                    }
+
+                    if($loggedIn){
+                        // Figure out wether the main challenger is logged in
+                        if($journeysUsersRow["MainUserID"] == $_SESSION["userID"]){
+                            // Yes they are
+                            $mainUserLoggedIn = TRUE;
+                        }
+                    }
+                    // assign the covered distance
+                    $distanceCovered = $journeysUsersRow["DistanceTravelled"]*10;
+                } elseif ($result->num_rows == 0) {
+                    echo "No data for these users was found on this challenge, please return to the previous page and try the link again";
+                    exit();
+                } else {
+                    echo "Duplicate ID found, ID:" . htmlspecialchars($_GET["multipleUserID"]) . ". Whoops, this one is on us.";
+                    exit();
+                }
+
+                $sql = "SELECT * FROM tbljourneys WHERE JourneyID = " . $conn -> real_escape_string($journeysUsersRow["JourneyID"]);
                 $result = $conn->query($sql);
                 if ($result->num_rows == 0){
-                    echo "Journey not found, please return to the previous page and try the link again";
+                    echo "Challenge not found, please return to the previous page and try the link again";
                     exit();
                 } elseif ($result->num_rows == 1) {
                     // set values for journey
-                    $row = $result->fetch_assoc();
-                    $displayName = htmlspecialchars($row['DisplayName']);
+                    $journeysRow = $result->fetch_assoc();
+                    $displayName = htmlspecialchars($journeysRow['DisplayName']);
                 } else {
-                    echo "Duplicate ID found, ID:" . htmlspecialchars($_GET["journeyID"]) . ". Whoops, this one is on us.";
+                    echo "Duplicate ID found, ID:" . htmlspecialchars($_GET["multipleUserID"]) . ". Whoops, this one is on us.";
                     exit();
                 }
 
@@ -47,24 +86,8 @@
                 // $row = $result->fetch_assoc();
                 // echo $row['total'];
 
-                $start = explode(",", $row['StartLatLong']);
-                $end = explode(",", $row['EndLatLong']);
-
-                $sql = "SELECT * FROM tbljourneysusers WHERE (MultipleUserID = ". htmlspecialchars($_GET["multipleUserID"]) ." AND JourneyID = ". htmlspecialchars($_GET["journeyID"]) .")";
-                $result = $conn->query($sql);
-                if ($result->num_rows == 1) {
-                    // assign the covered distance
-                    $row = $result->fetch_assoc();
-                    $distanceCovered = $row["DistanceTravelled"]*10;
-                } elseif ($result->num_rows == 0) {
-                    echo "No data for this user was found on this journey, please return to the previous page and try the link again";
-                    exit();
-                } else {
-                    echo "Duplicate ID found, ID:" . htmlspecialchars($_GET["JourneyID"]) . ". Whoops, this one is on us.";
-                    exit();
-                }
-                
-                $conn->close();
+                $start = explode(",", htmlspecialchars($journeysRow['StartLatLong']));
+                $end = explode(",", htmlspecialchars($journeysRow['EndLatLong']));
 
                 //{lat: 50.066093, lng: -5.715103}
 
@@ -76,10 +99,10 @@
                 echo "<script>" .
                 "var _origin = {lat:".$start[0].",lng:".$start[1]."};" .
                 "var _destination = {lat:".$end[0].",lng:".$end[1]."};" .
-                "var distance = " . $distanceCovered . ";" .
+                "var distance = " . htmlspecialchars($distanceCovered) . ";" .
                 "</script>";
             }else{
-                echo "One or both of MultipleUserID/JourneyID have not been specified, please return to the previous page and try the link again!";
+                echo "MultipleUserID has not been specified, please return to the previous page and try the link again!";
                 exit();
             }
         ?>
@@ -88,7 +111,7 @@
         <div class="container-fluid">
             <div id="routeName" class="row">
                 <div class="col-12">
-                    <?php echo $displayName;?>
+                    <?php echo htmlspecialchars($displayName);?>
                 </div>
             </div>
             <div id="toFromDisplay" class="row">
@@ -99,7 +122,144 @@
                     There was an error! This should be updated!
                 </div>
             </div>
-            <div id="" class="row">Participants</div>
+
+            <div id="challengers" class="row">
+                <div class="container">
+                    <div class="row col">
+                        Challengers
+                    </div>
+
+                    <?php
+                        function echoChallengerRow($position, $imageLink, $displayName, $travelMode, $userDistanceTravelled, $distanceTravelled, $firstDistanceTravelled, $nextDistanceTravelled, $mainUser, $userID){
+                            echo "<div class=\"row col challenger\">
+                                <div class=\"col-sm-2\">
+                                    #". htmlspecialchars($position);
+                                switch(htmlspecialchars($travelMode)){
+                                    case "BICYCLING":
+                                        echo "🚲";
+                                        break;
+                                    case "ROWING":
+                                        echo "🚣";
+                                        break;
+                                    case "WALKING":
+                                        echo "🏃";
+                                        break;
+                                }
+                                echo "<br>";
+                                if($mainUser){
+                                    echo "Main Challenger";
+                                }
+                                echo "</div>
+                                <div class=\"col-sm-2\">
+                                    <img src=". htmlspecialchars($imageLink) ." height=\"100px\" width=\"100px\"><br>
+                                    ". htmlspecialchars($displayName) ."
+                                </div>
+                                <div class=\"col-sm-3 offset-2\">";
+                                switch($travelMode){
+                                    case "BICYCLING":
+                                        echo "Cycled";
+                                        break;
+                                    case "ROWING":
+                                        echo "Rowed";
+                                        break;
+                                    case "WALKING":
+                                        echo "Run";
+                                        break;
+                                }
+                                echo ": " . htmlspecialchars($userDistanceTravelled) ."km so far<br>".
+                                    round(htmlspecialchars(($userDistanceTravelled/$distanceTravelled)*100), 2) ."% of total progress<br><br>".
+                                    htmlspecialchars($nextDistanceTravelled - $userDistanceTravelled) ."km from next position<br>".
+                                    htmlspecialchars($firstDistanceTravelled - $userDistanceTravelled) ."km from 1st place
+                                </div>
+                                <div class=\"col-sm-3\">
+                                    <a href=\"../userProfile/userProfile.php?userID=". htmlspecialchars($userID) ."\"><button class=\"openUserProfile\">View Profile</button></a>
+                                </div>
+                            </div>";
+                        }
+
+                        $sql = "SELECT * FROM tblmultipleusers WHERE MultipleUserID=". $conn -> real_escape_string($_GET["multipleUserID"] ." ORDER BY UserDistanceTravelled DESC");
+                        $multipleUsersResult = $conn->query($sql);
+
+                        if ($multipleUsersResult->num_rows == 0){
+                            echo "No users are recorded for this challenge, please return to the previous page and try the link again";
+                            exit();
+                        } elseif ($result->num_rows > 0) {
+                            // set values for journey
+                            $i = 0;
+                            $firstDistance = 0;
+                            $previousDistance = 0;
+                            while($multipleUsersRow = $multipleUsersResult->fetch_assoc()){
+                                if($i == 0){
+                                    $firstDistance = htmlspecialchars($multipleUsersRow["UserDistanceTravelled"]/100);
+                                    $previousDistance = $firstDistance;
+                                }
+
+                                $sql = "SELECT DisplayName, Public FROM tblusers WHERE UserID = ". $conn->real_escape_string($multipleUsersRow["UserID"]);
+                                $usersResult = $conn->query($sql);
+                                if ($usersResult->num_rows == 0){
+                                    echo "This user didn't exist? Please try again";
+                                    exit();
+                                } elseif ($usersResult->num_rows == 1) {
+                                    $usersRow = $usersResult->fetch_assoc();
+                                    if($usersRow["Public"] == 0 && !$loggedIn){
+                                        echo "<div class=\"row col challenger\">#". ($i + 1) ." This user's account is private</div>";
+                                    }else{
+                                        // Display this user's info specific to this journey
+                                        $withoutExtension = "../userProfile/profilePictures/". htmlspecialchars($multipleUsersRow["UserID"]);
+                                        if(file_exists($withoutExtension .".png")){
+                                            $withExtension = $withoutExtension .".png";
+                                        }elseif(file_exists($withoutExtension .".jpg")){
+                                            $withExtension = $withoutExtension .".jpg";
+                                        }elseif(file_exists($withoutExtension .".gif")){
+                                            $withExtension = $withoutExtension .".gif";
+                                        }else{
+                                            $withExtension = "profilePictures/default.png";
+                                        }
+                                        echoChallengerRow($i + 1, $withExtension, htmlspecialchars($usersRow['DisplayName']), htmlspecialchars($multipleUsersRow["TravelMode"]), htmlspecialchars($multipleUsersRow["UserDistanceTravelled"]/100), htmlspecialchars($distanceCovered/1000), $firstDistance, $previousDistance, $journeysUsersRow["MainUserID"] == $multipleUsersRow["UserID"], $multipleUsersRow["UserID"]);
+                                    }
+
+                                } else {
+                                    echo "Duplicate user ID found, ID:" . htmlspecialchars($multipleUsersRow["UserID"]) . ". Whoops, this one is on us.";
+                                    exit();
+                                }
+
+
+                                $previousDistance = htmlspecialchars($multipleUsersRow["UserDistanceTravelled"]/100);
+                                $i = $i + 1;
+                            }
+                            $displayName = htmlspecialchars($journeysRow['DisplayName']);
+                        } else {
+                            echo "Somehow a negative value was recieved";
+                            exit();
+                        }
+                        $conn->close();
+                    ?>
+
+                    <?php
+                        // Example of the challenger view the php is generating, in php to hide comments from inspector
+                        // <div class="row col challenger">
+                        //     <div class="col-sm-2">
+                        //         #1🚲<br>
+                        //         Main User
+                        //     </div>
+                        //     <div class="col-sm-2">
+                        //         <img src="../userProfile/profilePictures/1.gif"><br>
+                        //         Oliver Ursell
+                        //     </div>
+                        //     <div class="col-sm-3 offset-2">
+                        //         Cycled: 500km so far<br>
+                        //         50% of total progress<br><br>
+                        //         0km from 1st place<br>
+                        //         0km from next position
+                        //     </div>
+                        //     <div class="col-sm-3">
+                        //         <a href="../userProfile/userProfile.php?userID=1"><button class="openUserProfile">View Profile</button></a>
+                        //     </div>
+                        // </div>
+                    ?>
+                </div>
+            </div>
+
             <div id="actionButtons" class="row">
                 <div class="col-2 actionButtonContainer input-lg">
                     <div onclick="$('#config').show('fast');" class="actionButton"><img class="img-fluid" src="compassRose.png"></div>
@@ -130,7 +290,7 @@
         <!-- <footer>View our cookie policy: https://www.termsfeed.com/cookies-policy/044a9bc1485cc0cf54b509fedb4fa29b</footer> -->
 
         <script src="route.js"></script>
-        <!-- <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAn_3UQjVzZh01LHtMFPnfLFCkKiBK4Joc&callback=initMap"> -->
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAn_3UQjVzZh01LHtMFPnfLFCkKiBK4Joc&callback=initMap">
     </script>
     </body>
 </html>

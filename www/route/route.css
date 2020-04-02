@@ -40,6 +40,39 @@ body{
 	display:none;
 }
 
+#challengers{
+	background-color: grey;
+	padding:1em;
+	font-size: 150%;
+	border-left: solid green 2vw;
+}
+
+.challenger{
+	background-color: green;
+	padding:1em;
+	font-size: 70%;
+	margin-top: 1em;
+	border: solid black;
+}
+
+.openUserProfile{
+	height: 100%;
+	width:100%;
+	border:none;
+	background-color: #4c8359;
+	text-decoration: none;
+}
+
+.openUserProfile:hover {
+    -webkit-animation: user-border-raise 0.2s forwards; /*for less modern browsers*/
+    animation: user-border-raise 0.2s forwards; /*Inifinite*/
+}
+
+/* Animations */
+@keyframes user-border-raise {
+    to   {border-bottom:solid 0.15em black; background-color:yellow;}
+}
+
 #actionButtons{
 	height:100%;
 	bottom:0;
