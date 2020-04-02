@@ -13,6 +13,9 @@
         die("Connection failed: " . $conn->connect_error);
     }
 
+    // This might be useful
+    // UPDATE `tblmultipleusers` SET `UserDistanceTravelled`= `UserDistanceTravelled` + 9990 WHERE MultipleUserID = 2
+
 	//Add $_POST['distanceUpdate']; to some kind of database value then redirect:
 	$distanceCovered = htmlspecialchars($_POST["distanceCovered"]);
 	$distanceUpdate = htmlspecialchars($_POST["distanceUpdate"]);
