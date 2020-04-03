@@ -166,9 +166,17 @@
                                         echo "Run";
                                         break;
                                 }
-                                echo ": " . htmlspecialchars($userDistanceTravelled) ."km so far<br>".
-                                    round(htmlspecialchars(($userDistanceTravelled/$distanceTravelled)*100), 2) ."% of total progress<br><br>".
-                                    htmlspecialchars($nextDistanceTravelled - $userDistanceTravelled) ."km from next position<br>".
+                                echo ": " . htmlspecialchars($userDistanceTravelled) ."km so far<br>";
+                                if($distanceTravelled == 0){
+                                    if($userDistanceTravelled == 0){
+                                        echo "100% of total progress<br><br>";
+                                    }else{
+                                        echo "0% of total progress<br><br>";
+                                    }
+                                }else{
+                                    echo round(htmlspecialchars(($userDistanceTravelled/$distanceTravelled)*100), 2) ."% of total progress<br><br>";
+                                }
+                                echo htmlspecialchars($nextDistanceTravelled - $userDistanceTravelled) ."km from next position<br>".
                                     htmlspecialchars($firstDistanceTravelled - $userDistanceTravelled) ."km from 1st place
                                 </div>
                                 <div class=\"col-sm-3\">
@@ -177,7 +185,7 @@
                             </div>";
                         }
 
-                        $sql = "SELECT * FROM tblmultipleusers WHERE MultipleUserID=". $conn -> real_escape_string($_GET["multipleUserID"] ." ORDER BY UserDistanceTravelled DESC");
+                        $sql = "SELECT * FROM tblmultipleusers WHERE MultipleUserID=". $conn -> real_escape_string($_GET["multipleUserID"]) ." ORDER BY UserDistanceTravelled DESC";
                         $multipleUsersResult = $conn->query($sql);
 
                         if ($multipleUsersResult->num_rows == 0){
@@ -232,7 +240,6 @@
                             echo "Somehow a negative value was recieved";
                             exit();
                         }
-                        $conn->close();
                     ?>
 
                     <?php
@@ -262,35 +269,135 @@
 
             <div id="actionButtons" class="row">
                 <div class="col-2 actionButtonContainer input-lg">
-                    <div onclick="$('#config').show('fast');" class="actionButton"><img class="img-fluid" src="compassRose.png"></div>
+                <?php
+                    if($loggedIn){
+                        echo "<div onclick=\"$('#addUpdate').show('fast');\" class=\"actionButton\"><img class=\"img-fluid\" src=\"compassRose.png\"></div>";
+                    }
+                ?>
                 </div>
                 <div class="col-2 actionButtonContainer input-lg">
-                    <div onclick="$('#config').show('fast');" class="actionButton"><img class="img-fluid" src="open-book-silhouette.jpg"></div>
+                    <div onclick="$('#viewUpdates').show('fast');" class="actionButton"><img class="img-fluid" src="open-book-silhouette.jpg"></div>
                 </div>
                 <div class="col-8"></div>
             </div>
         </div>
 
-        <div id="config">
-            <form action="addUpdate.php" method="post">
-                <div class="form-group">
-                  <input name="journeyID" type="hidden" value="<?php echo htmlspecialchars($_GET['journeyID'])?>">
-                  <input name="multipleUserID" type="hidden" value="<?php echo htmlspecialchars($_GET['multipleUserID'])?>">
-                  <input name="distanceCovered" type="hidden" value="<?php echo $distanceCovered?>">
-                  <label for="distanceInput">Distance travelled (Kilometers)</label>
-                  <input name="distanceUpdate" type="number" class="form-control" id="distanceInput" aria-describedby="distanceHelp" placeholder="How far did you go?" required>
-                  <small id="distanceHelp" class="form-text text-muted">Should be to maximum two decimal places.</small>
+        <?php
+            if($loggedIn){
+                echo '<div id="addUpdate" class="config">
+                    <form action="addUpdate.php" method="post">
+                        <div class="form-group">
+                          <input name="multipleUserID" type="hidden" value="'. htmlspecialchars($_GET['multipleUserID']) .'">
+                          <label for="distanceInput">Distance travelled (Kilometers)</label>
+                          <input name="distanceUpdate" type="text" class="form-control" id="distanceInput" aria-describedby="distanceHelp" placeholder="How far did you go?" pattern="^\d*(\.\d{0,2})?$" required>
+                          <small id="distanceHelp" class="form-text text-muted">Should be to maximum two decimal places.</small>
+                        </div>
+                        <button name="distanceUpdateSubmit" type="submit" class="btn btn-primary">Update</button>
+                    </form>
+                    <br>
+                    <button onclick="$(\'#addUpdate\').hide(\'fast\');" class="btn btn-danger">Cancel</button>
+                </div>';
+            }
+        ?>
+        
+
+        <div id="viewUpdates" class="config">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-6">
+                        Updates
+                        <br>
+                        Ordered by: Most recent
+                    </div>
+                    <div class="col-2 offset-3">
+                        <button onclick="$('#viewUpdates').hide('fast');" class="btn btn-danger">Close</button>
+                    </div>
                 </div>
-                <button name="distanceUpdateSubmit" type="submit" class="btn btn-primary">Update</button>
-            </form>
-            <br>
-            <button onclick="$('#config').hide('fast');" class="btn btn-danger">Cancel</button>
+                <br>
+
+                <?php
+                    function echoUpdate($imageLink, $displayName, $distance, $mainUser, $challenger, $userID, $updateIndex){
+                        echo "<br>
+                        <div class=\"update row\">
+                            <img width=\"50px\" height=\"50px\" src=\"". $imageLink ."\">
+                            <div class=\"col-7\">".
+                                $displayName ."<br>".
+                                $distance ."km
+                            </div>";
+                        if($mainUser){
+                            echo "<div class=\"col-1\"><form action=\"removeUpdate.php\" method=\"post\">
+                                <input name=\"multipleUserID\" type=\"hidden\" value=\"". htmlspecialchars($_GET["multipleUserID"]) ."\">
+                                <input name=\"userID\" type=\"hidden\" value=\"". htmlspecialchars($userID) ."\">
+                                <input name=\"updateIndex\" type=\"hidden\" value=\"". htmlspecialchars($updateIndex) ."\">
+                                <input name=\"distanceUpdate\" type=\"hidden\" value=\"". htmlspecialchars($distance) ."\">
+                                <input name=\"remove\" type=\"submit\" class=\"btn btn-danger\" value=\"X\">
+                            </form></div>";
+                        }else if($challenger){
+                            if($userID == $_SESSION["userID"]){
+                                //This user posted this update
+                                echo "<div class=\"col-1\"><form action=\"removeUpdate.php\" method=\"post\">
+                                    <input name=\"multipleUserID\" type=\"hidden\" value=\"". htmlspecialchars($_GET["multipleUserID"]) ."\">
+                                    <input name=\"userID\" type=\"hidden\" value=\"". htmlspecialchars($userID) ."\">
+                                    <input name=\"updateIndex\" type=\"hidden\" value=\"". htmlspecialchars($updateIndex) ."\">
+                                    <input name=\"distanceUpdate\" type=\"hidden\" value=\"". htmlspecialchars($distance) ."\">
+                                    <input name=\"remove\" type=\"submit\" class=\"btn btn-danger\" value=\"X\">
+                                </form></div>";
+                            }
+                        }
+                        echo "</div>";
+                    }
+
+                    $sql = "SELECT UserID, UpdateIndex, UpdateDistance FROM tblupdates WHERE MultipleUserID=". $conn -> real_escape_string($_GET["multipleUserID"]) ." ORDER BY UpdateIndex DESC";
+                        $updatesResult = $conn->query($sql);
+
+                    if ($updatesResult->num_rows == 0){
+                        echo "No updates are recorded for this challenge";
+                    } elseif ($result->num_rows > 0) {
+                        while($updatesRow = $updatesResult->fetch_assoc()){
+                            $sql = "SELECT DisplayName, Public FROM tblusers WHERE UserID = ". $conn->real_escape_string($updatesRow["UserID"]);
+                            $usersResult = $conn->query($sql);
+                            if ($usersResult->num_rows == 0){
+                                echo "This user didn't exist? Please try again";
+                                exit();
+                            } elseif ($usersResult->num_rows == 1) {
+                                $usersRow = $usersResult->fetch_assoc();
+                                if($usersRow["Public"] == 0 && !$loggedIn){
+                                    echo "<div class=\"update row\"> This user's account is private</div>";
+                                }else{
+                                    // Display this user's info specific to this journey
+                                    $withoutExtension = "../userProfile/profilePictures/". htmlspecialchars($updatesRow["UserID"]);
+                                    if(file_exists($withoutExtension .".png")){
+                                        $withExtension = $withoutExtension .".png";
+                                    }elseif(file_exists($withoutExtension .".jpg")){
+                                        $withExtension = $withoutExtension .".jpg";
+                                    }elseif(file_exists($withoutExtension .".gif")){
+                                        $withExtension = $withoutExtension .".gif";
+                                    }else{
+                                        $withExtension = "profilePictures/default.png";
+                                    }
+
+                                    echoUpdate($withExtension, $usersRow["DisplayName"], $updatesRow["UpdateDistance"]/100, $mainUserLoggedIn, $loggedIn, $updatesRow["UserID"], $updatesRow["UpdateIndex"]);
+                                }
+
+                            } else {
+                                echo "Duplicate user ID found, ID:" . htmlspecialchars($multipleUsersRow["UserID"]) . ". Whoops, this one is on us.";
+                                exit();
+                            }
+                        }
+                        $displayName = htmlspecialchars($journeysRow['DisplayName']);
+                    } else {
+                        echo "Somehow a negative value was recieved";
+                        exit();
+                    }
+                    $conn->close();   
+                ?>
+            </div>
         </div>
 
         <!-- <footer>View our cookie policy: https://www.termsfeed.com/cookies-policy/044a9bc1485cc0cf54b509fedb4fa29b</footer> -->
 
         <script src="route.js"></script>
-        <!-- <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAn_3UQjVzZh01LHtMFPnfLFCkKiBK4Joc&callback=initMap"> -->
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAn_3UQjVzZh01LHtMFPnfLFCkKiBK4Joc&callback=initMap">
     </script>
     </body>
 </html>

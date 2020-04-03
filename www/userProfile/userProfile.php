@@ -215,9 +215,11 @@
                 </div>
 
                 <div id="challenges" class="col-10 offset-1 block">
-                    <button class="btn btn-success">+ Add New Challenge</button>
-                    <button class="btn btn-success">+ Create your own challenge</button>
                     <?php
+                    if($loggedIn){
+                        echo "<button class=\"btn btn-success\">+ Add New Challenge</button>
+                        <button class=\"btn btn-success\">+ Create your own challenge</button>";
+                    }
 
                         function echoChallengeRow($travelMode, $routeDisplayName, $distance, $totalDistance, $loggedIn, $displayName, $userDistance, $multipleUserID){
                             echo "<div class=\"challenge\">
