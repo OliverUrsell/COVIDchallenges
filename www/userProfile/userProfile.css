@@ -158,3 +158,21 @@ body, html {
 @keyframes challenge-border-raise {
     to   {border-bottom:solid 0.15em black; background-color:yellow;}
 }
+
+.config{
+	display: none;
+	position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    padding:2em;
+	background-color: white;
+	color:black;
+	height:80%;
+	overflow-y: auto
+}
+
+input[type="button"]{
+	margin-left: 1em;
+	width:3em;
+}

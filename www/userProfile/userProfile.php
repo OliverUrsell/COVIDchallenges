@@ -216,10 +216,10 @@
 
                 <div id="challenges" class="col-10 offset-1 block">
                     <?php
-                    if($loggedIn){
-                        echo "<button class=\"btn btn-success\">+ Add New Challenge</button>
-                        <button class=\"btn btn-success\">+ Create your own challenge</button>";
-                    }
+                        if($loggedIn){
+                            echo "<button class=\"btn btn-success\">+ Add New Challenge</button>
+                            <button onclick=\"$('#newChallenge').show('fast');\" class=\"btn btn-success\">+ Create your own challenge</button>";
+                        }
 
                         function echoChallengeRow($travelMode, $routeDisplayName, $distance, $totalDistance, $loggedIn, $displayName, $userDistance, $multipleUserID){
                             echo "<div class=\"challenge\">
@@ -393,6 +393,60 @@
                 </div>
                 <div id="statistics" class="block col-10 block offset-1">
                     Total distance travelled: 
+                </div>
+            </div>
+        </div>
+
+        <div id="newChallenge" class="config container">
+            <div class="row">
+                <div class="col-6">
+                    <h2>Create new challenge</h2>
+                </div>
+                <div class="col-2 offset-4">
+                    <button onclick="$('#newChallenge').hide('fast');" class="btn btn-danger">Close</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <br>
+                    <form>
+                        <input id="latLongCount" name="latLongCount" type="hidden" value="2">
+                        Challenge Name: 
+                        <input type="text" class="form-control" placeholder="Land's End to John O'Groats">
+                        <br>
+                        <div class="container" style="border: solid black; padding:1em;">
+                            Latitude / Longitude points (min: 2, max: 8)
+                            <br>
+                            <div class="row">
+                                <div class="col">
+                                    Latitude:
+                                    <input type="text" class="form-control" placeholder="Latitude 1" value="58.644842" pattern="(^$|^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?)$)" required>
+                                </div>
+                                <div class="col">
+                                    Longitude:
+                                    <input type="text" class="form-control" placeholder="Longitude 1" value="-3.070379" pattern="(^$|^[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$)" required>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row">
+                                <div class="col">
+                                    Latitude:
+                                    <input type="text" class="form-control" placeholder="Latitude 2" value="50.066262" pattern="(^$|^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?)$)" required>
+                                </div>
+                                <div class="col">
+                                    Longitude:
+                                    <input type="text" class="form-control" placeholder="Longitude 2" value="-5.715138" pattern="(^$|^[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$)" required>
+                                </div>
+                            </div>
+                            <br>
+                            <div id="latLongButtons" class="row">
+                                <input type="button" value="+" id="addLatLong">
+                                <input type="button" value="-" id="removeLatLong">
+                            </div>
+                        </div>
+                        <br>
+                        <input class="btn btn-success" type="Submit" value="Create">
+                    </form>
                 </div>
             </div>
         </div>
