@@ -72,7 +72,7 @@
 	}
 
 	$conn->close();
-	header('Location: route.php?journeyID='.htmlspecialchars($_POST['journeyID']).'&multipleUserID='.htmlspecialchars($_POST['multipleUserID']));
+	header('Location: route.php?multipleUserID='.htmlspecialchars($_POST['multipleUserID']));
 ?>
 </body>
 </html>

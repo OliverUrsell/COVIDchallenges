@@ -1,7 +1,7 @@
 body{
 	margin-top: 10vh;
 	background-color: black;
-	color:white;
+	color:black;
 	overflow-x: none;
 }
 
@@ -14,10 +14,12 @@ body{
 #routeName{
 	padding:0.5em;
 	font-size: 150%;
+	color:white;
 }
 
 #toFromDisplay{
-	background-color: grey;
+	/*background-color: grey;*/
+	background-color: #c1c1c1; 
 	padding:1em;
 	font-size: 150%;
 	border-left: solid red 2vw;
@@ -25,7 +27,8 @@ body{
 
 #progressBar{
 	height: 1.5em;
-	background-color: #769176;
+	/*background-color: #769176;*/
+	background-color: #c1c1c1;
 	border: solid black 0.1em;
 	padding:0;
 }
@@ -33,7 +36,8 @@ body{
 #progressBarContents{
 	height:1.3em;
 	width:0%;
-	background-color: blue;
+	/*background-color: blue;*/
+	background-color: #6060e0;
 }
 
 #letterValues{
@@ -41,7 +45,8 @@ body{
 }
 
 #challengers{
-	background-color: grey;
+	/*background-color: grey;*/
+	background-color: #c1c1c1;
 	padding:1em;
 	font-size: 150%;
 	border-left: solid green 2vw;
@@ -53,6 +58,7 @@ body{
 	font-size: 70%;
 	margin-top: 1em;
 	border: solid black;
+	color:white;
 }
 
 .openUserProfile{
@@ -83,11 +89,33 @@ body{
 	border:black thick;
 }
 
-.actionButton{
+/*.actionButton{
 	width:100%;
 	background-color: white;
 	color:black;
 	cursor: pointer;
+}*/
+
+.actionButton{
+	color:white;
+	position:relative;
+	background-color: #c51414;
+	height:5em;
+	border:none;
+	text-decoration: none;
+	width:100%;
+	border-right: solid black;
+	cursor:pointer;
+}
+
+.actionButton:hover {
+    -webkit-animation: border-raise 0.2s forwards; /*for less modern browsers*/
+    animation: border-raise 0.2s forwards; /*Inifinite*/
+}
+
+/* Animations */
+@keyframes border-raise {
+    to   {border-bottom:solid 0.1em black; background-color: #961c1c;}
 }
 
 .config{

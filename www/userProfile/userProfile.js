@@ -24,18 +24,42 @@ $(".category").click(function(){
 	currentDiv = $(this);
 });
 
-$(document).on('keydown', 'input[pattern]', function(e){
-  var input = $(this);
-  var oldVal = input.val();
-  var regex = new RegExp(input.attr('pattern'), 'g');
+function challengeFormValidity(){
+	var latRegex = new RegExp("^[-+]?([1-8]?\\d(\\.\\d+)?|90(\\.0+)?)$", 'g');
+  	var longRegex = new RegExp("^[-+]?(180(\\.0+)?|((1[0-7]\\d)|([1-9]?\\d))(\\.\\d+)?)$", 'g');
+  	
+  	alert(latRegex.test($(".lat")[0].value));
+  	$(".lat").each(function(index, value){
 
-  setTimeout(function(){
-    var newVal = input.val();
-    if(!regex.test(newVal)){
-      input.val(oldVal); 
-    }
-  }, 0);
-});
+  		setTimeout(function(){
+		    if(latRegex.test(value.value)){
+		      	alert("Here1");
+		    }else{
+		    	alert("Here2");
+		    }
+		}, 0);
+
+
+  		if(latRegex.test(value.value)){
+  			alert(index)
+  			value.setCustomValidity("");
+  		}else{
+  			alert(index);
+  			alert(latRegex.test(value.value));
+  			value.setCustomValidity("That is not a valid Latitude");
+  		}
+  	});
+
+  	// setTimeout(function(){
+  	// 	$(".lat").each(function(index, value){
+  	// 		value.setCustomValidity(!latRegex.test($(".lat")[0].value) ? "That is not a valid latitude" : "");
+  	// 	});
+
+  	// 	$(".long").each(function(index, value){
+  	// 		value.setCustomValidity(!longRegex.test($(".long")[0].value) ? "That is not a valid longitude" : "");
+  	// 	});
+  	// }, 0);
+}
 
 $("#addLatLong").click(function(){
 	if(latLongCount < 8){

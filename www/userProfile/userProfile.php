@@ -217,8 +217,8 @@
                 <div id="challenges" class="col-10 offset-1 block">
                     <?php
                         if($loggedIn){
-                            echo "<button class=\"btn btn-success\">+ Add New Challenge</button>
-                            <button onclick=\"$('#newChallenge').show('fast');\" class=\"btn btn-success\">+ Create your own challenge</button>";
+                            echo "<a href=\"../chooseJourney/chooseJourney.php\"><button class=\"btn btn-success\">+ Add New Challenge</button></a>";
+                            // <button onclick=\"$('#newChallenge').show('fast');\" class=\"btn btn-success\">+ Create your own challenge</button>";
                         }
 
                         function echoChallengeRow($travelMode, $routeDisplayName, $distance, $totalDistance, $loggedIn, $displayName, $userDistance, $multipleUserID){
@@ -409,7 +409,7 @@
             <div class="row">
                 <div class="col">
                     <br>
-                    <form>
+                    <form oninput='challengeFormValidity();'>
                         <input id="latLongCount" name="latLongCount" type="hidden" value="2">
                         Challenge Name: 
                         <input type="text" class="form-control" placeholder="Land's End to John O'Groats">
@@ -420,22 +420,22 @@
                             <div class="row">
                                 <div class="col">
                                     Latitude:
-                                    <input type="text" class="form-control" placeholder="Latitude 1" value="58.644842" pattern="(^$|^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?)$)" required>
+                                    <input name="lat1" type="text" class="lat form-control" placeholder="Latitude 1" value="58.644842" required>
                                 </div>
                                 <div class="col">
                                     Longitude:
-                                    <input type="text" class="form-control" placeholder="Longitude 1" value="-3.070379" pattern="(^$|^[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$)" required>
+                                    <input name="long1" type="text" class="long form-control" placeholder="Longitude 1" value="-3.070379" required>
                                 </div>
                             </div>
                             <br>
                             <div class="row">
                                 <div class="col">
                                     Latitude:
-                                    <input type="text" class="form-control" placeholder="Latitude 2" value="50.066262" pattern="(^$|^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?)$)" required>
+                                    <input name="lat2" type="text" class=" form-control" placeholder="Latitude 2" value="50.066262" required>
                                 </div>
                                 <div class="col">
                                     Longitude:
-                                    <input type="text" class="form-control" placeholder="Longitude 2" value="-5.715138" pattern="(^$|^[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$)" required>
+                                    <input name="lat2" type="text" class=" form-control" placeholder="Longitude 2" value="-5.715138" required>
                                 </div>
                             </div>
                             <br>

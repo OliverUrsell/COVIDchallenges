@@ -16,16 +16,6 @@
 
         <?php include '../navbar/navbar.php';?>
 
-        <!-- <?php
-            $options = [
-                'cost' => 11,
-            ];
-            // Get the password from post
-            $passwordFromPost = "password";
-
-            echo password_hash($passwordFromPost, PASSWORD_BCRYPT, $options);
-        ?> -->
-
         <?php
 
             // password

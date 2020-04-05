@@ -78,7 +78,7 @@
                     $journeysRow = $result->fetch_assoc();
                     $displayName = htmlspecialchars($journeysRow['DisplayName']);
                 } else {
-                    echo "Duplicate ID found, ID:" . htmlspecialchars($_GET["multipleUserID"]) . ". Whoops, this one is on us.";
+                    echo "Duplicate journey ID found, ID:" . htmlspecialchars($journeysUsersRow["JourneyID"]) . ". Whoops, this one is on us.";
                     exit();
                 }
 
@@ -121,6 +121,23 @@
                 <div id="letterValues" class="col-3">
                     There was an error! This should be updated!
                 </div>
+            </div>
+
+            <div id="actionButtons" class="row">
+                <div class="col-2 actionButtonContainer input-lg">
+                <?php
+                    if($loggedIn){
+                        echo "<button onclick=\"$('#addUpdate').show('fast');\" class=\"actionButton\">Add update</button>";
+                    }
+                ?>
+                </div>
+                <div class="col-2 actionButtonContainer input-lg">
+                    <button onclick="$('#viewUpdates').show('fast');" class="actionButton">View updates</button>
+                </div>
+                <div class="col-2 actionButtonContainer input-lg">
+                    <button onclick="$('#share').show('fast');" class="actionButton">Share challenge</button>
+                </div>
+                <div class="col-6"></div>
             </div>
 
             <div id="challengers" class="row">
@@ -221,7 +238,7 @@
                                         }elseif(file_exists($withoutExtension .".gif")){
                                             $withExtension = $withoutExtension .".gif";
                                         }else{
-                                            $withExtension = "profilePictures/default.png";
+                                            $withExtension = "../userProfile/profilePictures/default.png";
                                         }
                                         echoChallengerRow($i + 1, $withExtension, htmlspecialchars($usersRow['DisplayName']), htmlspecialchars($multipleUsersRow["TravelMode"]), htmlspecialchars($multipleUsersRow["UserDistanceTravelled"]/100), htmlspecialchars($distanceCovered/1000), $firstDistance, $previousDistance, $journeysUsersRow["MainUserID"] == $multipleUsersRow["UserID"], $multipleUsersRow["UserID"]);
                                     }
@@ -265,20 +282,6 @@
                         // </div>
                     ?>
                 </div>
-            </div>
-
-            <div id="actionButtons" class="row">
-                <div class="col-2 actionButtonContainer input-lg">
-                <?php
-                    if($loggedIn){
-                        echo "<div onclick=\"$('#addUpdate').show('fast');\" class=\"actionButton\"><img class=\"img-fluid\" src=\"compassRose.png\"></div>";
-                    }
-                ?>
-                </div>
-                <div class="col-2 actionButtonContainer input-lg">
-                    <div onclick="$('#viewUpdates').show('fast');" class="actionButton"><img class="img-fluid" src="open-book-silhouette.jpg"></div>
-                </div>
-                <div class="col-8"></div>
             </div>
         </div>
 
@@ -373,7 +376,7 @@
                                     }elseif(file_exists($withoutExtension .".gif")){
                                         $withExtension = $withoutExtension .".gif";
                                     }else{
-                                        $withExtension = "profilePictures/default.png";
+                                        $withExtension = "../userProfile/profilePictures/default.png";
                                     }
 
                                     echoUpdate($withExtension, $usersRow["DisplayName"], $updatesRow["UpdateDistance"]/100, $mainUserLoggedIn, $loggedIn, $updatesRow["UserID"], $updatesRow["UpdateIndex"]);
@@ -394,10 +397,42 @@
             </div>
         </div>
 
+        <div id="share" class="config">
+            <h2>Share</h2>
+            <br>
+            <form>
+                <label for="joineInvite">Invite users to join this challenge</label>
+                <div class="input-group">
+                    <input id="joinInvite" aria-describedby="joinInviteHelp" type="text" class="form-control"
+                    value="/path/to/foo/bar" readonly>
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" onclick="copyInputID('joinInvite');">
+                            Copy
+                        </button>
+                    </span>
+                </div>
+                <small id="joinInviteHelp" class="form-text text-muted">Anyone who knows the challenge password and has this link can join this challenge</small>
+                <br>
+                <label for="tryInvite">Invite users to try this challenge</label>
+                <div class="input-group">
+                    <input id="tryInvite" aria-describedby="tryInviteHelp" type="text" class="form-control"
+                    value="https://www.COVIDchallenges.online/shareStartJourney/shareStartJourney.php?journeyID=<?php echo $journeysUsersRow["JourneyID"] ?>" readonly>
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" onclick="copyInputID('tryInvite');">
+                            Copy
+                        </button>
+                    </span>
+                </div>
+                <small id="tryInviteHelp" class="form-text text-muted">Anyone who follows this link will be prompted to create their own version of the same challenge</small>
+            </form>
+            <br>
+            <button onclick="$('#share').hide('fast');" class="btn btn-danger">Close</button>
+        </div>
+
         <!-- <footer>View our cookie policy: https://www.termsfeed.com/cookies-policy/044a9bc1485cc0cf54b509fedb4fa29b</footer> -->
 
         <script src="route.js"></script>
-        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAn_3UQjVzZh01LHtMFPnfLFCkKiBK4Joc&callback=initMap">
+        <!-- <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAn_3UQjVzZh01LHtMFPnfLFCkKiBK4Joc&callback=initMap"> -->
     </script>
     </body>
 </html>

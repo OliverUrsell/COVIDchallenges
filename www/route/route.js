@@ -27,7 +27,7 @@ function calculateAndDisplayRoute(directionsService, directionsDisplay) {
   directionsService.route({
     origin: _origin,
     destination: _destination,
-    travelMode: 'BICYCLING'
+    travelMode: 'WALKING'
   }, function(response, status) {
     if (status == google.maps.DirectionsStatus.OK) {
       polyline.setPath([]);
@@ -162,3 +162,18 @@ $(document).on('keydown', 'input[pattern]', function(e){
     }
   }, 0);
 });
+
+function copyInputID(ID) {
+  /* Get the text field */
+  var copyText = document.getElementById(ID);
+
+  /* Select the text field */
+  copyText.select();
+  copyText.setSelectionRange(0, 99999); /*For mobile devices*/
+
+  /* Copy the text inside the text field */
+  document.execCommand("copy");
+
+  // /* Alert the copied text */
+  // alert("Copied the text: " + copyText.value);
+}

@@ -5,6 +5,7 @@
 	<div id="navbar" class="container-fluid">
 		<div class="row">
 			<?php
+				$navbarLoggedIn = FALSE;
 				if(isset($_SESSION['userID'])){
 					$servername = "localhost";
 	            	$username = "Ollie";
@@ -31,23 +32,25 @@
 		            }
 
 					// User is logged in
-					echo "<div class=\"col-4 nav-text\">Logged in as: ". $row['DisplayName'] ."</div>
+					echo "<div class=\"col-4 nav-text\">Logged in as: ". htmlspecialchars($row['DisplayName']) ."</div>
 					<div class=\"col-2 offset-1\">
-						<a href=\"/\"><button class=\"nav-button\">COVID challenges</button></a>
+						<a href=\"../COVIDchallenges/COVIDchallenges.php\"><button class=\"nav-button\">COVID challenges</button></a>
 					</div>
 					<div class=\"col-4 offset-1\">
 						<form method=\"POST\" action='../login/logout.php'>
 							<input class=\"nav-button nav-button-right\" type=\"submit\" name=\"button1\"  value=\"Logout\">
 						</form> 
-						<a href=\"../userProfile/userProfile.php?userID=". $_SESSION["userID"] ."\"><button class=\"nav-button nav-button-right\">My Profile</button></a>
+						<a href=\"../userProfile/userProfile.php?userID=". htmlspecialchars($_SESSION["userID"]) ."\"><button class=\"nav-button nav-button-right\">My Profile</button></a>
 					</div>
 					";
+					$navbarLoggedIn = TRUE;
 				}else{
 					// User is not logged in
 					echo "<div class=\"col-2 offset-5\">
 						<a href=\"/\"><button class=\"nav-button\">COVID challenges</button></a>
 					</div>
-					<div class=\"col-2 offset-3\">
+					<div class=\"col-4 offset-1\">
+						<a href=\"../register/register.php\"><button class=\"nav-button nav-button-right\">Register</button></a>
 						<a href=\"../login/login.php\"><button class=\"nav-button nav-button-right\">Login</button></a>
 					</div>";
 				}
