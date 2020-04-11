@@ -4,9 +4,9 @@
 <html lang="en">
     <head>
         <meta charset="utf-8"> 
-        <title>Start a new Challenge?</title>
+        <title>Join a new Challenge?</title>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-        <link rel="stylesheet" href="shareStartJourney.css">
+        <link rel="stylesheet" href="joinJourney.css">
         <script src="../jquery.min.js"></script>
         <script   src="https://code.jquery.com/color/jquery.color-2.1.2.min.js"   integrity="sha256-H28SdxWrZ387Ldn0qogCzFiUDDxfPiNIyJX7BECQkDE="   crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
@@ -30,40 +30,110 @@
 		    }
 
 		    if(!$navbarLoggedIn){
-		    	echo "<div id=\"contents\">You need to log in / register before you can start this challenge!</div>";
+		    	echo "<div id=\"contents\">You need to log in / register before you can join this challenge! Login and visit this link again</div>";
 		    	exit();
 		    }
 
+		    $multipleUserID = null;
+
+		    $passwordIncorrect=FALSE;
+
 		    if(isset($_GET['multipleUserID'])){
+
+		    	if(isset($_POST["confirm"])){
+			    	// User has pressed confirm and submitted a password to join the challenge in $_GET["multipleUserID"]
+
+			    	$sql = "SELECT Password FROM tbljourneysusers WHERE MultipleUserID = '". $conn -> real_escape_string($_GET["multipleUserID"]) ."'";
+	                $result = $conn->query($sql);
+	                if ($result->num_rows == 0){
+	                    //Account not found
+	                    $incorrect = TRUE;
+	                } elseif ($result->num_rows == 1) {
+	                    $row = $result->fetch_assoc();
+	                    // test the password
+	                    $passwordFromPost = htmlspecialchars($_POST["password"]);
+	                    $hashedPasswordFromDB = htmlspecialchars($row["Password"]);
+
+	                    if (password_verify($passwordFromPost, $hashedPasswordFromDB)) {
+	                        // Valid password
+
+	                    	// Add new account to challenge
+		                    $sql = "INSERT INTO `tblmultipleusers` (`MultipleUserID`, `UserID`, `UserDistanceTravelled`, `TravelMode`) VALUES ('". $conn->real_escape_string($_GET["multipleUserID"]) ."', '". $conn->real_escape_string($_SESSION["userID"]) ."', '0', '";
+		                    switch($conn->real_escape_string($_POST["travelMode"])){
+		                        case "Cycle":
+		                            $sql = $sql ."BICYCLING";
+		                            break;
+		                        case "Row":
+		                            $sql = $sql ."ROWING";
+		                            break;
+		                        case "Run":
+		                            $sql = $sql ."WALKING";
+		                            break;
+		                        default:
+		                            echo $_POST["travelMode"]. "<div id=\"register\">Something went wrong with the travel mode!</div>";
+		                            exit();
+		                    }
+
+		                    $sql = $sql . "')";
+		                    if ($conn->query($sql) === TRUE) {
+		                        // Record updated successfully
+		                        header('Location: ../route/route.php?multipleUserID='. htmlspecialchars($_GET["multipleUserID"]));
+		                        exit();
+		                    } else {
+		                        echo "<div id=\"register\">Error updating record: " . $conn->error ."</div>";
+		                        exit();
+		                    }
+	                        exit();
+	                    } else {
+	                        // Invalid password
+	                        $passwordIncorrect = TRUE;
+	                    }
+	                } else {
+	                    $row = $result->fetch_assoc();
+	                    echo "Duplicate account found, ID:" . htmlspecialchars($row["UserID"]) . ". Whoops, this one is on us.";
+	                }
+			    }
+
+
 		    	if($_GET['multipleUserID'] != ""){
-			    	$sql = "SELECT * FROM tbljourneys WHERE JourneyID = " . $conn -> real_escape_string($_GET["journeyID"]);
+			    	$sql = "SELECT JourneyID, MainUserID FROM tbljourneysusers WHERE MultipleUserID = " . $conn -> real_escape_string($_GET["multipleUserID"]);
 	                $result = $conn->query($sql);
 	                if ($result->num_rows == 0){
 	                    echo "<div id=\"contents\">Challenge not found, please check the link has been copied correctly</div>";
 	                    exit();
 	                } elseif ($result->num_rows == 1) {
-	                    // set values for journey
-	                    $journeysRow = $result->fetch_assoc();
-	                    $displayName = htmlspecialchars($journeysRow['DisplayName']);
 
-	                    echo "<br>
-						<div id=\"contents\" class=\"container\">
-							<div class=\"row\">
-								<div class=\"col-12\">
-									Start the new challenge ". $displayName ." as ". $row["DisplayName"] ."?
-								</div>
-							</div>
-							<br>
-							<div class=\"row\">
-								<div class=\"col\">
-									<form action=\"../startJourney/startJourney.php\" method=\"post\">
-										<input name=\"journeyID\" type=\"hidden\" value=\"". $_GET["journeyID"] ."\">
-										<input class=\"btn btn-success\" type=\"submit\" value=\"Yes\">
-									</form>
-									<a href=\"../login/login.php\"><button class=\"btn btn-danger\">No</button></a>
-								</div>
-							</div>
-						</div>";
+	                    $journeysUsersRow = $result->fetch_assoc();
+
+	                    $sql = "SELECT * FROM tbljourneys WHERE JourneyID = " . $conn -> real_escape_string($journeysUsersRow["JourneyID"]);
+		                $result = $conn->query($sql);
+		                if ($result->num_rows == 0){
+		                    echo "<div id=\"contents\">Challenge not found, please check the link has been copied correctly</div>";
+		                    exit();
+		                } elseif ($result->num_rows == 1) {
+		                    // set values for journey
+		                    $journeysRow = $result->fetch_assoc();
+
+		                    $sql = "SELECT * FROM tblusers WHERE UserID = " . $conn -> real_escape_string($journeysUsersRow["MainUserID"]);
+			                $result = $conn->query($sql);
+			                if ($result->num_rows == 0){
+			                    echo "<div id=\"contents\">Main user not found, please check the link has been copied correctly</div>";
+			                    exit();
+			                } elseif ($result->num_rows == 1) {
+			                    // set values for journey
+			                    $usersRow = $result->fetch_assoc();
+			                } else {
+			                    echo "<div id=\"contents\">Duplicate user ID found, ID:" . htmlspecialchars($journeysUsersRow["MainUserID"]) . ". Whoops, this one is on us.</div>";
+			                    exit();
+			                }
+		                    
+		                    
+		                } else {
+		                    echo "<div id=\"contents\">Duplicate ID found, ID:" . htmlspecialchars($_GET["multipleUserID"]) . ". Whoops, this one is on us.</div>";
+		                    exit();
+		                }
+
+
 	                } else {
 	                    echo "<div id=\"contents\">Duplicate ID found, ID:" . htmlspecialchars($_GET["multipleUserID"]) . ". Whoops, this one is on us.</div>";
 	                    exit();
@@ -77,60 +147,35 @@
 		    	exit();
 		    }
 
-		    // This might be useful
-		    // UPDATE `tblmultipleusers` SET `UserDistanceTravelled`= `UserDistanceTravelled` + 9990 WHERE MultipleUserID = 2
-
-			//Add $_POST['distanceUpdate']; to some kind of database value then redirect:
-			// $newDistance = 24700;
-			// $newDistance = 250000;
-
-		    // if(isset($_GET["JourneyID"])){
-		    // 	$sql = "SELECT COUNT(*) as Total FROM `tblmultipleusers` WHERE (UserID=". $conn->real_escape_string($_SESSION["userID"]) ." AND MultipleUserID=". $conn->real_escape_string($_POST["multipleUserID"]) .")";
-			   //  $result = $conn->query($sql);
-			   //  if($result->fetch_assoc()["Total"] == 0){
-			   //      // this challenge hasn't been assigned directly
-			   //      $loggedIn = TRUE;
-			   //  }
-		    // }
-
-			// if($loggedIn){
-			// 	$sql = "SELECT COUNT(UpdateIndex) as Total FROM `tblupdates` WHERE MultipleUserID=". $conn->real_escape_string($_POST["multipleUserID"]);
-		 //        $result = $conn->query($sql);
-		 //        $updateIndex = $result->fetch_assoc()["Total"];
-
-
-			// 	$sql = "INSERT INTO `tblupdates` (`MultipleUserID`, `UserID`, `UpdateIndex`, `UpdateDistance`) VALUES ('". $conn -> real_escape_string($_POST["multipleUserID"]) ."', '". $conn -> real_escape_string($_SESSION["userID"]) ."', '". $conn -> real_escape_string($updateIndex) ."', '". $conn -> real_escape_string($_POST["distanceUpdate"])*100 ."')";
-			// 	if ($conn->query($sql) === TRUE) {
-			// 	    echo "Record Inserted Successfully";
-
-			// 	    $sql = "UPDATE `tblmultipleusers` SET `UserDistanceTravelled`=UserDistanceTravelled + ". $conn -> real_escape_string($_POST["distanceUpdate"]*100) ." WHERE (MultipleUserID = ". $conn -> real_escape_string($_POST["multipleUserID"]) ." AND UserID = ". $conn -> real_escape_string($_SESSION["userID"]) .")";
-			// 		if ($conn->query($sql) === TRUE) {
-			// 		    echo "Record updated successfully";
-			// 		} else {
-			// 		    echo "Error updating record: " . $conn->error;
-			// 		    exit();
-			// 		}
-
-
-			// 	    $sql = "UPDATE tbljourneysusers SET DistanceTravelled = DistanceTravelled + ". $conn -> real_escape_string($_POST["distanceUpdate"]*100) ." WHERE `MultipleUserID` = ". $conn -> real_escape_string($_POST["multipleUserID"]);
-			// 		if ($conn->query($sql) === TRUE) {
-			// 		    echo "Record updated successfully";
-			// 		} else {
-			// 		    echo "Error updating record: " . $conn->error;
-			// 		    exit();
-			// 		}
-			// 	} else {
-			// 	    echo "Error inserting record: " . $conn->error;
-			// 	    exit();
-			// 	}
-
-				
-			// }
-
 			$conn->close();
-			// header('Location: route.php?journeyID='.htmlspecialchars($_POST['journeyID']).'&multipleUserID='.htmlspecialchars($_POST['multipleUserID']));
 		?>
-		
 
+		<br>
+		<div id="contents" class="container">
+			<?php if($passwordIncorrect){echo "<span id=\"failedPassword\"> ! Password is incorrect. Please try again</span><br><br>";}?>
+			<div class="row">
+				<div class="col-12">
+					Join the new challenge <?php echo htmlspecialchars($journeysRow["DisplayName"])?> with <?php echo htmlspecialchars($usersRow["DisplayName"])?>?
+				</div>
+			</div>
+			<br>
+			<div class="row">
+				<div class="col">
+					<form action="joinJourney.php?multipleUserID=<?php echo htmlspecialchars($_GET["multipleUserID"]) ?>" method="post">
+						<div id="travelModeContainer" class="form-group">
+		                    <label for="travelMode">I am going to:</label>
+		                    <select name="travelMode" class="form-control" id="travelMode">
+		                        <option>Run</option>
+		                        <option>Cycle</option>
+		                        <option>Row</option>
+		                    </select>
+		                </div>
+		                <input name="password" type="password" placeholder=" challenge password" required>
+						<input id="yes" name="confirm" class="btn btn-success" type="submit" value="Confirm">
+					</form>
+					<a href="../login/login.php"><button id="no" class="btn btn-danger">Cancel</button></a>
+				</div>
+			</div>
+		</div>
 	</body>
 </html>

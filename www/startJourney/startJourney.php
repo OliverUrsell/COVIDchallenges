@@ -61,7 +61,7 @@
                 $multipleUserID = $result->fetch_assoc()["AUTO_INCREMENT"];
 
                 // Update journeys users
-                $sql = "INSERT INTO `tbljourneysusers` (`MultipleUserID`, `JourneyID`, `DistanceTravelled`, `Public`, `MainUserID`, `Password`, `CharityLink`) VALUES (NULL, '". $_POST["journeyID"] ."', '0', '1', '". $conn->real_escape_string($_SESSION["userID"]) ."', '". $hash ."', '". $conn->real_escape_string($_POST["charityLink"]) ."')";
+                $sql = "INSERT INTO `tbljourneysusers` (`MultipleUserID`, `JourneyID`, `DistanceTravelled`, `Public`, `MainUserID`, `TotalDistance`, `Password`, `CharityLink`) VALUES (NULL, '". $_POST["journeyID"] ."', '0', '1', '". $conn->real_escape_string($_SESSION["userID"]) ."', '". $conn->real_escape_string($_POST["totalDistance"]) ."', '". $hash ."', '". $conn->real_escape_string($_POST["charityLink"]) ."')";
                 if ($conn->query($sql) === TRUE) {
                     // Record updated successfully
 
@@ -81,8 +81,8 @@
                             echo $_POST["travelMode"]. "<div id=\"register\">Something went wrong with the travel mode!</div>";
                             exit();
                     }
+                    $sql = $sql ."')";
 
-                    $sql = $sql . "')";
                     if ($conn->query($sql) === TRUE) {
                         // Record updated successfully
                         header('Location: ../route/route.php?multipleUserID='.htmlspecialchars($multipleUserID));
@@ -112,6 +112,47 @@
                     echo "<div id=\"register\">Duplicate ID found, ID:" . htmlspecialchars($_GET["multipleUserID"]) . ". Whoops, this one is on us.</div>";
                     exit();
                 }
+
+                $sql = "SELECT Latitude, Longitude FROM tbllatlongs WHERE JourneyID = ". $conn -> real_escape_string($_POST["journeyID"]) ." ORDER BY CoordinateIndex";
+                $latLongsResult = $conn->query($sql);
+
+                if ($latLongsResult->num_rows == 0 || $latLongsResult->num_rows == 1){
+                    echo "<div id='register'>There should be at least 2 latitude, longitude pairs but there aren't enough</div>";
+                    exit();
+                } elseif ($latLongsResult->num_rows > 1) {
+                    // set values for journey
+                    $latLongs = "[";
+                    while($latLongsRow = $latLongsResult->fetch_assoc()){
+                        $latLongs = $latLongs. "['" . $latLongsRow["Latitude"]. "','" .$latLongsRow["Longitude"]. "'],";
+                    }
+                    $latLongs = rtrim($latLongs, ","). "]";
+                } else {
+                    echo "<div id='register'>Somehow a negative number of latitude, longitude pairs was found</div>";
+                    exit();
+                }
+
+                // $result = $conn->query("SELECT COUNT(*) as total FROM tbljourneysusers WHERE JourneyID = " . $conn -> real_escape_string($_GET['JourneyID']));
+                // $row = $result->fetch_assoc();
+                // echo $row['total'];
+
+                //{lat: 50.066093, lng: -5.715103}
+
+                // if(isset($_REQUEST['distanceUpdateSubmit']))
+                // {
+                //     $distanceCovered += $_POST['distanceUpdate']*1000;
+                // }
+
+                $travelMode = htmlspecialchars($mainUserRow["TravelMode"]);
+
+                if($travelMode != "WALKING" || $travelMode != "BICYCLING"){
+                    $travelMode = "WALKING";
+                }
+                
+                echo "<script>" .
+                // "var latLongs = [['51.507570', '-0.127784'], ['55.863583', '-4.254418']];" .
+                "var latLongs = ". $latLongs .";".
+                "</script>";
+
             }else{
                 echo "<div id=\"register\"> You need to access this page via either the choose challenge page (your profile -> add new challenge) or from an invitational link (ask the person who setup the original challenge to get the link from the share tab)</div>";
                 exit();
@@ -121,16 +162,19 @@
         <div id="register">
             <h2>Start new challenge</h2>
             <h5><?php echo $displayName ?></h5><br>
-            <form action="startJourney.php" method="post" oninput='password2.setCustomValidity(password2.value != password.value ? "Passwords do not match." : "")'>
+            <div id="incorrectMessage"> ! Sorry, google couldn't find a route for this challenge that uses your selected travel mode (tip: try selecting a different travel mode and then using your preffered exercise method and using that to fill it in)</div>
+            <br>
+            <form id="startJourneyForm" action="startJourney.php" method="post" oninput='password2.setCustomValidity(password2.value != password.value ? "Passwords do not match." : "")' onsubmit="return calculateRoute()">
+                <input id="distanceTotal" name="totalDistance" type="hidden" value="0">
                 <input name="journeyID" type="hidden" value="<?php echo htmlspecialchars($_POST["journeyID"])?>">
                 <input name="password" type="password" class="form-control" placeholder="Enter a password for inviting people to your challenge" required><br>
                 <input name="password2" type="password" class="form-control" placeholder="Re-type Password" required><br>
                 <div class="form-group">
                     <label for="travelMode">I am going to:</label>
-                    <select name="travelMode" class="form-control" id="travelMode">
-                        <option>Run</option>
-                        <option>Cycle</option>
-                        <option>Row</option>
+                    <select id="travelModeSelect" name="travelMode" class="form-control" id="travelMode">
+                        <option value="Run">Run</option>
+                        <option value="Cycle">Cycle</option>
+                        <option value="Row">Row</option>
                     </select>
                 </div>
                 <input name="charityLink" class="form-control" type="text" placeholder="Charity Link (optional)"><br>
@@ -139,6 +183,7 @@
         </div>
 
         <!-- <footer>View our cookie policy: https://www.termsfeed.com/cookies-policy/044a9bc1485cc0cf54b509fedb4fa29b</footer> -->
-    </script>
+        <script src="startJourney.js"></script>
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAn_3UQjVzZh01LHtMFPnfLFCkKiBK4Joc&callback=initMap"></script>
     </body>
 </html>

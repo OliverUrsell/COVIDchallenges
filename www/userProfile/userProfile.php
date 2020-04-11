@@ -4,7 +4,7 @@
 <html lang="en">
     <head>
         <meta charset="utf-8"> 
-        <title>User's Journeys</title>
+        <title>User Profile</title>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
         <link rel="stylesheet" href="userProfile.css">
         <script src="../jquery.min.js"></script>
@@ -118,7 +118,8 @@
                             }else{
                                 echo "<span id=\"wrongPass\"> 🗙 The password was incorrect</span><br><br>";
                             }
-                        }?>
+                        }
+                        ?>
                     <div id="name" class="row">
                         <div class="col-2">
                             <img src="
@@ -135,8 +136,21 @@
                                 }
                             ?>" height="100" width="100" alt="<?php if($updateSuccess){echo htmlspecialchars($newDisplayName);}else{echo htmlspecialchars($row["DisplayName"]);}?>'s profile picture"/>
                         </div>
-                        <div class="col-8 offset-2">
-                            <?php if($updateSuccess){echo htmlspecialchars($newDisplayName);}else{echo htmlspecialchars($row["DisplayName"]);} ?>
+                        <div class="col-8 offset-1">
+                            <?php if($updateSuccess){echo htmlspecialchars($newDisplayName);}else{echo htmlspecialchars($row["DisplayName"]);} ?><br>
+                            <?php if($loggedIn){
+                                echo '<small id="shareLinkHelp" class="form-text text-muted">Share your profile:</small>
+                            <div class="input-group">
+                                <input id="shareLink" aria-describedby="shareLinkHelp" type="text" class="form-control"
+                                value="https://www.covidchallenges.online/route/route.php?userID='. htmlspecialchars($_GET["userID"]) .'" readonly>
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default" type="button" onclick="copyInputID(\'shareLink\');">
+                                        Copy
+                                    </button>
+                                </span>
+                            </div>';
+                            }?>
+                            
                         </div>
                     </div>
                     <div class="row">
@@ -217,8 +231,8 @@
                 <div id="challenges" class="col-10 offset-1 block">
                     <?php
                         if($loggedIn){
-                            echo "<a href=\"../chooseJourney/chooseJourney.php\"><button class=\"btn btn-success\">+ Add New Challenge</button></a>";
-                            // <button onclick=\"$('#newChallenge').show('fast');\" class=\"btn btn-success\">+ Create your own challenge</button>";
+                            echo "<a href=\"../chooseJourney/chooseJourney.php\"><button class=\"btn btn-success\">+ Add New Challenge</button></a>
+                            <button onclick=\"$('#newChallenge').show('fast');\" class=\"btn btn-success\">+ Create your own challenge</button>";
                         }
 
                         function echoChallengeRow($travelMode, $routeDisplayName, $distance, $totalDistance, $loggedIn, $displayName, $userDistance, $multipleUserID){
@@ -323,7 +337,7 @@
                                                 $currentDisplayName = htmlspecialchars($row["DisplayName"]);
                                             }
 
-                                            echoChallengeRow($multipleUsersRow["TravelMode"], $journeyRow["DisplayName"], $journeysUsersRow["DistanceTravelled"]/100, $journeyRow["TotalDistance"]/100,$loggedIn ,$currentDisplayName , $multipleUsersRow["UserDistanceTravelled"]/100, $multipleUsersRow["MultipleUserID"]);
+                                            echoChallengeRow($multipleUsersRow["TravelMode"], $journeyRow["DisplayName"], $journeysUsersRow["DistanceTravelled"]/100, $journeysUsersRow["TotalDistance"]/100,$loggedIn ,$currentDisplayName , $multipleUsersRow["UserDistanceTravelled"]/100, $multipleUsersRow["MultipleUserID"]);
                                             $challengeDisplayed = TRUE;
                                         }
 
@@ -398,6 +412,7 @@
         </div>
 
         <div id="newChallenge" class="config container">
+            
             <div class="row">
                 <div class="col-6">
                     <h2>Create new challenge</h2>
@@ -408,11 +423,13 @@
             </div>
             <div class="row">
                 <div class="col">
+                    <div id="incorrectMessage"> ! Sorry, google couldn't find a route for these latitude longitude pairs</div>
                     <br>
-                    <form oninput='challengeFormValidity();'>
+                    <form id="createChallengeForm" action="../createJourney/createJourney.php" method="post" onsubmit="return calculateRoute()">
+                        <input id="distanceTotal" name="distanceTotal" type="hidden">
                         <input id="latLongCount" name="latLongCount" type="hidden" value="2">
                         Challenge Name: 
-                        <input type="text" class="form-control" placeholder="Land's End to John O'Groats">
+                        <input name="challengeName" type="text" class="form-control" placeholder="Land's End to John O'Groats" required>
                         <br>
                         <div class="container" style="border: solid black; padding:1em;">
                             Latitude / Longitude points (min: 2, max: 8)
@@ -435,7 +452,7 @@
                                 </div>
                                 <div class="col">
                                     Longitude:
-                                    <input name="lat2" type="text" class=" form-control" placeholder="Longitude 2" value="-5.715138" required>
+                                    <input name="long2" type="text" class=" form-control" placeholder="Longitude 2" value="-5.715138" required>
                                 </div>
                             </div>
                             <br>
@@ -445,13 +462,14 @@
                             </div>
                         </div>
                         <br>
-                        <input class="btn btn-success" type="Submit" value="Create">
+                        <input id="createSubmit" name="createChallenge" class="btn btn-success" type="Submit" value="Create">
                     </form>
                 </div>
             </div>
         </div>
-
+        
         <script src="userProfile.js"></script>
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAn_3UQjVzZh01LHtMFPnfLFCkKiBK4Joc&callback=initMap"></script>
         <!-- <footer>View our cookie policy: https://www.termsfeed.com/cookies-policy/044a9bc1485cc0cf54b509fedb4fa29b</footer> -->
     </body>
 </html>

@@ -46,24 +46,7 @@
 	                    $journeysRow = $result->fetch_assoc();
 	                    $displayName = htmlspecialchars($journeysRow['DisplayName']);
 
-	                    echo "<br>
-						<div id=\"contents\" class=\"container\">
-							<div class=\"row\">
-								<div class=\"col-12\">
-									Start the new challenge ". $displayName ." as ". $row["DisplayName"] ."?
-								</div>
-							</div>
-							<br>
-							<div class=\"row\">
-								<div class=\"col\">
-									<form action=\"../startJourney/startJourney.php\" method=\"post\">
-										<input name=\"journeyID\" type=\"hidden\" value=\"". $_GET["journeyID"] ."\">
-										<input class=\"btn btn-success\" type=\"submit\" value=\"Yes\">
-									</form>
-									<a href=\"../login/login.php\"><button class=\"btn btn-danger\">No</button></a>
-								</div>
-							</div>
-						</div>";
+	                    
 	                } else {
 	                    echo "<div id=\"contents\">Duplicate ID found, ID:" . htmlspecialchars($_GET["journeyID"]) . ". Whoops, this one is on us.</div>";
 	                    exit();
@@ -79,6 +62,25 @@
 
 			$conn->close();
 		?>
+
+		<br>
+			<div id="contents" class="container">
+				<div class="row">
+					<div class="col-12">
+						Start the new challenge <?php echo $displayName ." as ". htmlspecialchars($row["DisplayName"]) ?>?
+					</div>
+				</div>
+				<br>
+				<div class="row">
+					<div class="col">
+						<form action="../startJourney/startJourney.php" method="post">
+							<input name="journeyID" type="hidden" value="<?php echo $_GET["journeyID"]; ?>">
+							<input class="btn btn-success" type="submit" value="Yes">
+						</form>
+						<a href="../login/login.php"><button class="btn btn-danger">No</button></a>
+					</div>
+				</div>
+			</div>";
 		
 
 	</body>

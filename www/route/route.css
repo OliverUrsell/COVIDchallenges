@@ -89,6 +89,20 @@ body{
 	border:black thick;
 }
 
+#charityLink{
+	background-color: green;
+}
+
+#charityLink:hover {
+    -webkit-animation: charity-border-raise 0.2s forwards; /*for less modern browsers*/
+    animation: charity-border-raise 0.2s forwards; /*Inifinite*/
+}
+
+/* Animations */
+@keyframes charity-border-raise {
+    to   {border-bottom:solid 0.1em black; background-color: #005200;}
+}
+
 /*.actionButton{
 	width:100%;
 	background-color: white;

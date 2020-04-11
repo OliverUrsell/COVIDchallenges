@@ -24,10 +24,21 @@ function initMap() {
 }
 
 function calculateAndDisplayRoute(directionsService, directionsDisplay) {
+  //Create waypoints
+  waypointLatLongs = []
+  latLongs.forEach(function(item, index){
+    waypointLatLongs.push({
+      location: new google.maps.LatLng(item[0], item[1]),
+      stopover: false
+    });
+  });
+
+
   directionsService.route({
     origin: _origin,
     destination: _destination,
-    travelMode: 'WALKING'
+    travelMode: travelMode,
+    waypoints: waypointLatLongs
   }, function(response, status) {
     if (status == google.maps.DirectionsStatus.OK) {
       polyline.setPath([]);
@@ -70,13 +81,19 @@ function calculateAndDisplayRoute(directionsService, directionsDisplay) {
         title: distance/1000 + " Kilometer(s)"
       });
       marker.addListener('click', openInfoWindow);
-      var distanceTotal = google.maps.geometry.spherical.computeLength(polyline.getPath().getArray());
+      // var distanceTotal = google.maps.geometry.spherical.computeLength(polyline.getPath().getArray());
       $("#letterValues").html(distance/1000 + " / " + Math.floor(distanceTotal/10)/100 + "Km");
-      $("#progressBarContents").animate({width: String((distance/distanceTotal)*100) + 2 + "%"}, 4000, function(){
-		  $("#progressBarContents").animate({width: String((distance/distanceTotal)*100) + "%"}, 200, function(){
-			$("#letterValues").show("fast");
-		});
-	  });
+      if(distance/distanceTotal > 1){
+        $("#progressBarContents").animate({width: "100%", backgroundColor: "green"}, 4000, function(){
+          $("#letterValues").show("fast");
+        });
+      }else{
+        $("#progressBarContents").animate({width: String((distance/distanceTotal)*100) + 2 + "%"}, 4000, function(){
+          $("#progressBarContents").animate({width: String((distance/distanceTotal)*100) + "%"}, 200, function(){
+            $("#letterValues").show("fast");
+          });
+        });
+      }
     } else {
       alert("directions response " + status);
     }
@@ -150,19 +167,6 @@ function GetPointsAtDistance(poly, metres) {
   return points;
 }
 
-$(document).on('keydown', 'input[pattern]', function(e){
-  var input = $(this);
-  var oldVal = input.val();
-  var regex = new RegExp(input.attr('pattern'), 'g');
-
-  setTimeout(function(){
-    var newVal = input.val();
-    if(!regex.test(newVal)){
-      input.val(oldVal); 
-    }
-  }, 0);
-});
-
 function copyInputID(ID) {
   /* Get the text field */
   var copyText = document.getElementById(ID);
@@ -176,4 +180,10 @@ function copyInputID(ID) {
 
   // /* Alert the copied text */
   // alert("Copied the text: " + copyText.value);
+}
+
+function openLink(link){
+  if(confirm("LINKS CAN BE WEIRD\nAre you sure you want to open:\n" + link)){
+    window.location.href = link;
+  }
 }

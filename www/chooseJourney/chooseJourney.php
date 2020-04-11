@@ -51,7 +51,9 @@
                         echo "</div>
                     </div>
                     <div class=\"col-2\">
-                        ". $distanceTotal ."km
+                        Distance:
+                        ". $distanceTotal ."km<br>
+                        (Varies with travel method)
                     </div>";
                     if($userLoggedIn){
                         echo "<div class=\"col-3 offset-1\">

@@ -10,6 +10,7 @@
         <script src="../jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+        <script   src="https://code.jquery.com/color/jquery.color-2.1.2.min.js"   integrity="sha256-H28SdxWrZ387Ldn0qogCzFiUDDxfPiNIyJX7BECQkDE="   crossorigin="anonymous"></script>
     </head>
     <body>
 
@@ -47,7 +48,7 @@
                     //Check to see if the user is logged in
                     $journeysUsersRow = $result->fetch_assoc();
                     if($journeysUsersRow["Public"] == 0 && !$loggedIn){
-                        echo "This challenge is private";
+                        echo "<div id='toFromDisplay'>This challenge is private</div>";
                         exit();
                     }
 
@@ -61,24 +62,93 @@
                     // assign the covered distance
                     $distanceCovered = $journeysUsersRow["DistanceTravelled"]*10;
                 } elseif ($result->num_rows == 0) {
-                    echo "No data for these users was found on this challenge, please return to the previous page and try the link again";
+                    echo "<div id='toFromDisplay'>No data for these users was found on this challenge, please return to the previous page and try the link again</div>";
                     exit();
                 } else {
-                    echo "Duplicate ID found, ID:" . htmlspecialchars($_GET["multipleUserID"]) . ". Whoops, this one is on us.";
+                    echo "<div id='toFromDisplay'>Duplicate ID found, ID:" . htmlspecialchars($_GET["multipleUserID"]) . ". Whoops, this one is on us.</div>";
                     exit();
+                }
+
+                $public = $journeysUsersRow["Public"];
+
+                // We have now established if the main user is logged in so update privacy if necessary
+                if(isset($_POST["journeySettings"]) && $mainUserLoggedIn){
+                    //The settings have been changed
+                    // Edit journey
+                    $sql = "UPDATE `tbljourneysusers` SET `Public` = '";
+                    if($_POST["public"] == "Public"){
+                        $sql = $sql. "1";
+                        $public = TRUE;
+                    }else{
+                        $sql = $sql. "0";
+                        $public = FALSE;
+                    }
+                    $sql = $sql. "' WHERE `MultipleUserID` = " .$_GET["multipleUserID"];
+                    
+                    if ($conn->query($sql) === TRUE) {
+                        // Record updated successfully
+                        $updateSuccess = TRUE;
+                    } else {
+                        echo "<div id='toFromDisplay'>Error updating record: " . $conn->error . "</div>";
+                    }
                 }
 
                 $sql = "SELECT * FROM tbljourneys WHERE JourneyID = " . $conn -> real_escape_string($journeysUsersRow["JourneyID"]);
                 $result = $conn->query($sql);
                 if ($result->num_rows == 0){
-                    echo "Challenge not found, please return to the previous page and try the link again";
+                    echo "<div id='toFromDisplay'>Challenge not found, please return to the previous page and try the link again</div>";
                     exit();
                 } elseif ($result->num_rows == 1) {
                     // set values for journey
                     $journeysRow = $result->fetch_assoc();
                     $displayName = htmlspecialchars($journeysRow['DisplayName']);
                 } else {
-                    echo "Duplicate journey ID found, ID:" . htmlspecialchars($journeysUsersRow["JourneyID"]) . ". Whoops, this one is on us.";
+                    echo "<div id='toFromDisplay'>Duplicate journey ID found, ID:" . htmlspecialchars($journeysUsersRow["JourneyID"]) . ". Whoops, this one is on us.</div>";
+                    exit();
+                }
+
+                $sql = "SELECT TravelMode FROM tblmultipleusers WHERE MultipleUserID = ". $conn->real_escape_string($_GET["multipleUserID"]) ." AND UserID = ". $conn->real_escape_string($journeysUsersRow["MainUserID"]);
+                $result = $conn->query($sql);
+                if ($result->num_rows == 1) {
+                    //Check to see if the user is logged in
+                    $mainUserRow = $result->fetch_assoc();
+                } elseif ($result->num_rows == 0) {
+                    echo "<div id='toFromDisplay'>No data for the main user was found on this challenge, please return to the previous page and try the link again</div>";
+                    exit();
+                } else {
+                    echo "<div id='toFromDisplay'>Duplicate ID found, ID:" . htmlspecialchars($_GET["multipleUserID"]) . ". Whoops, this one is on us.</div>";
+                    exit();
+                }
+
+                $sql = "SELECT Latitude, Longitude FROM tbllatlongs WHERE JourneyID = ". $conn -> real_escape_string($journeysUsersRow["JourneyID"]) ." ORDER BY CoordinateIndex";
+                $latLongsResult = $conn->query($sql);
+
+                if ($latLongsResult->num_rows == 0 || $latLongsResult->num_rows == 1){
+                    echo "<div id='toFromDisplay'>There should be at least 2 latitude, longitude pairs but there aren't enough</div>";
+                    exit();
+                } elseif ($latLongsResult->num_rows > 1) {
+                    // set values for journey
+                    $i = 0;
+                    $firstDistance = 0;
+                    $previousDistance = 0;
+                    $start = "";
+                    $end = "";
+                    $latLongs = "[";
+                    while($latLongsRow = $latLongsResult->fetch_assoc()){
+                        if($i == 0){
+                            // This is the origin
+                            $start = $latLongsRow["Latitude"]. "," .$latLongsRow["Longitude"];
+                        }else if($i == $latLongsResult->num_rows - 1){
+                            // This is the destination
+                            $end = $latLongsRow["Latitude"]. "," .$latLongsRow["Longitude"];
+                        }else{
+                            $latLongs = $latLongs. "['" . $latLongsRow["Latitude"]. "','" .$latLongsRow["Longitude"]. "'],";
+                        }
+                        $i = $i + 1;
+                    }
+                    $latLongs = rtrim($latLongs, ","). "]";
+                } else {
+                    echo "<div id='toFromDisplay'>Somehow a negative number of latitude, longitude pairs was found</div>";
                     exit();
                 }
 
@@ -86,8 +156,8 @@
                 // $row = $result->fetch_assoc();
                 // echo $row['total'];
 
-                $start = explode(",", htmlspecialchars($journeysRow['StartLatLong']));
-                $end = explode(",", htmlspecialchars($journeysRow['EndLatLong']));
+                $start = explode(",", $start);
+                $end = explode(",", $end);
 
                 //{lat: 50.066093, lng: -5.715103}
 
@@ -95,14 +165,25 @@
                 // {
                 //     $distanceCovered += $_POST['distanceUpdate']*1000;
                 // }
+
+                $travelMode = htmlspecialchars($mainUserRow["TravelMode"]);
+
+                if($travelMode != "WALKING" || $travelMode != "BICYCLING"){
+                    $travelMode = "WALKING";
+                }
                 
                 echo "<script>" .
+                // "var latLongs = [['51.507570', '-0.127784'], ['55.863583', '-4.254418']];" .
+                "var latLongs = ". $latLongs .";" .
                 "var _origin = {lat:".$start[0].",lng:".$start[1]."};" .
                 "var _destination = {lat:".$end[0].",lng:".$end[1]."};" .
                 "var distance = " . htmlspecialchars($distanceCovered) . ";" .
+                //1311.17
+                "var distanceTotal = " . htmlspecialchars($journeysUsersRow["TotalDistance"]*10) . ";" .
+                "var travelMode = '" . $travelMode . "';" .
                 "</script>";
             }else{
-                echo "MultipleUserID has not been specified, please return to the previous page and try the link again!";
+                echo "<div id='toFromDisplay'>MultipleUserID has not been specified, please return to the previous page and try the link again!</div>";
                 exit();
             }
         ?>
@@ -127,17 +208,30 @@
                 <div class="col-2 actionButtonContainer input-lg">
                 <?php
                     if($loggedIn){
-                        echo "<button onclick=\"$('#addUpdate').show('fast');\" class=\"actionButton\">Add update</button>";
+                        echo "<button onclick=\"$('.config').hide('fast'); $('#addUpdate').show('fast');\" class=\"actionButton\">Add update</button>";
                     }
                 ?>
                 </div>
                 <div class="col-2 actionButtonContainer input-lg">
-                    <button onclick="$('#viewUpdates').show('fast');" class="actionButton">View updates</button>
+                    <button onclick="$('.config').hide('fast'); $('#viewUpdates').show('fast');" class="actionButton">View updates</button>
+                </div>
+                <div class="col-4 actionButtonContainer input-lg">
+                    <?php
+                        if(htmlspecialchars($journeysUsersRow["CharityLink"]) != ""){
+                            echo '<button id="charityLink" onclick="openLink(\''. htmlspecialchars($journeysUsersRow["CharityLink"]) .'\');" class="actionButton">Support this challenge\'s charity</button>';
+                        }
+                    ?>
                 </div>
                 <div class="col-2 actionButtonContainer input-lg">
-                    <button onclick="$('#share').show('fast');" class="actionButton">Share challenge</button>
+                    <button onclick="$('.config').hide('fast'); $('#share').show('fast');" class="actionButton">Share challenge</button>
                 </div>
-                <div class="col-6"></div>
+                <div class="col-2 actionButtonContainer input-lg">
+                    <?php
+                        if($mainUserLoggedIn){
+                            echo '<button onclick="$(\'.config\').hide(\'fast\'); $(\'#settings\').show(\'fast\');" class="actionButton">Challenge settings</button>';
+                        }
+                    ?>
+                </div>
             </div>
 
             <div id="challengers" class="row">
@@ -206,9 +300,9 @@
                         $multipleUsersResult = $conn->query($sql);
 
                         if ($multipleUsersResult->num_rows == 0){
-                            echo "No users are recorded for this challenge, please return to the previous page and try the link again";
+                            echo "<div id='toFromDisplay'>No users are recorded for this challenge, please return to the previous page and try the link again. There should be at least one</div>";
                             exit();
-                        } elseif ($result->num_rows > 0) {
+                        } elseif ($multipleUsersResult->num_rows > 0) {
                             // set values for journey
                             $i = 0;
                             $firstDistance = 0;
@@ -222,7 +316,7 @@
                                 $sql = "SELECT DisplayName, Public FROM tblusers WHERE UserID = ". $conn->real_escape_string($multipleUsersRow["UserID"]);
                                 $usersResult = $conn->query($sql);
                                 if ($usersResult->num_rows == 0){
-                                    echo "This user didn't exist? Please try again";
+                                    echo "<div id='toFromDisplay'>This user didn't exist? Please try again</div>";
                                     exit();
                                 } elseif ($usersResult->num_rows == 1) {
                                     $usersRow = $usersResult->fetch_assoc();
@@ -244,7 +338,7 @@
                                     }
 
                                 } else {
-                                    echo "Duplicate user ID found, ID:" . htmlspecialchars($multipleUsersRow["UserID"]) . ". Whoops, this one is on us.";
+                                    echo "<div id='toFromDisplay'>Duplicate user ID found, ID:" . htmlspecialchars($multipleUsersRow["UserID"]) . ". Whoops, this one is on us.</div>";
                                     exit();
                                 }
 
@@ -254,7 +348,7 @@
                             }
                             $displayName = htmlspecialchars($journeysRow['DisplayName']);
                         } else {
-                            echo "Somehow a negative value was recieved";
+                            echo "<div id='toFromDisplay'>Somehow a negative value was recieved</div>";
                             exit();
                         }
                     ?>
@@ -354,13 +448,13 @@
                         $updatesResult = $conn->query($sql);
 
                     if ($updatesResult->num_rows == 0){
-                        echo "No updates are recorded for this challenge";
+                        echo "<div id='toFromDisplay'>No updates are recorded for this challenge</div>";
                     } elseif ($result->num_rows > 0) {
                         while($updatesRow = $updatesResult->fetch_assoc()){
                             $sql = "SELECT DisplayName, Public FROM tblusers WHERE UserID = ". $conn->real_escape_string($updatesRow["UserID"]);
                             $usersResult = $conn->query($sql);
                             if ($usersResult->num_rows == 0){
-                                echo "This user didn't exist? Please try again";
+                                echo "<div id='toFromDisplay'>This user didn't exist? Please try again</div>";
                                 exit();
                             } elseif ($usersResult->num_rows == 1) {
                                 $usersRow = $usersResult->fetch_assoc();
@@ -383,13 +477,13 @@
                                 }
 
                             } else {
-                                echo "Duplicate user ID found, ID:" . htmlspecialchars($multipleUsersRow["UserID"]) . ". Whoops, this one is on us.";
+                                echo "<div id='toFromDisplay'>Duplicate user ID found, ID:" . htmlspecialchars($multipleUsersRow["UserID"]) . ". Whoops, this one is on us.</div>";
                                 exit();
                             }
                         }
                         $displayName = htmlspecialchars($journeysRow['DisplayName']);
                     } else {
-                        echo "Somehow a negative value was recieved";
+                        echo "<div id='toFromDisplay'>Somehow a negative value was recieved</div>";
                         exit();
                     }
                     $conn->close();   
@@ -401,38 +495,90 @@
             <h2>Share</h2>
             <br>
             <form>
-                <label for="joineInvite">Invite users to join this challenge</label>
+
+                <?php if($loggedIn){
+                    echo '<label for="joinInvite">Invite users to join this challenge</label>
+                    <div class="input-group">
+                        <input id="joinInvite" aria-describedby="joinInviteHelp" type="text" class="form-control"
+                        value="https://www.covidchallenges.online/joinJourney/joinJourney.php?multipleUserID='. htmlspecialchars($_GET["multipleUserID"]) .'" readonly>
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button" onclick="copyInputID(\'joinInvite\');">
+                                Copy
+                            </button>
+                        </span>
+                    </div>
+                    <small id="joinInviteHelp" class="form-text text-muted">Anyone who knows the challenge password and has this link can join this challenge</small>
+                    <br>';
+                }
+                ?>
+
+                <label for="viewInvite">View this challenge</label>
                 <div class="input-group">
-                    <input id="joinInvite" aria-describedby="joinInviteHelp" type="text" class="form-control"
-                    value="/path/to/foo/bar" readonly>
+                    <input id="viewInvite" aria-describedby="viewInviteHelp" type="text" class="form-control"
+                    value="https://www.covidchallenges.online/route/route.php?multipleUserID=<?php echo htmlspecialchars($_GET["multipleUserID"]) ?>" readonly>
                     <span class="input-group-btn">
-                        <button class="btn btn-default" type="button" onclick="copyInputID('joinInvite');">
+                        <button class="btn btn-default" type="button" onclick="copyInputID('viewInvite');">
                             Copy
                         </button>
                     </span>
                 </div>
-                <small id="joinInviteHelp" class="form-text text-muted">Anyone who knows the challenge password and has this link can join this challenge</small>
+                <small id="viewInviteHelp" class="form-text text-muted">Anyone who follows this link will be shown this challenge (provided it is not private)</small>
                 <br>
                 <label for="tryInvite">Invite users to try this challenge</label>
                 <div class="input-group">
                     <input id="tryInvite" aria-describedby="tryInviteHelp" type="text" class="form-control"
-                    value="https://www.COVIDchallenges.online/shareStartJourney/shareStartJourney.php?journeyID=<?php echo $journeysUsersRow["JourneyID"] ?>" readonly>
+                    value="https://www.covidchallenges.online/shareStartJourney/shareStartJourney.php?journeyID=<?php echo htmlspecialchars($journeysUsersRow["JourneyID"]) ?>" readonly>
                     <span class="input-group-btn">
                         <button class="btn btn-default" type="button" onclick="copyInputID('tryInvite');">
                             Copy
                         </button>
                     </span>
                 </div>
-                <small id="tryInviteHelp" class="form-text text-muted">Anyone who follows this link will be prompted to create their own version of the same challenge</small>
+                <small id="tryInviteHelp" class="form-text text-muted">Anyone who follows this link will be prompted to create their own version of the same challenge this group are doing</small>
             </form>
             <br>
             <button onclick="$('#share').hide('fast');" class="btn btn-danger">Close</button>
         </div>
 
+
+        <?php
+            if($mainUserLoggedIn){
+                echo '<div id="settings" class="config">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-6">
+                                <h3>Settings</h3>
+                            </div>
+                            <div class="col-2 offset-2">
+                                <button onclick="$(\'#settings\').hide(\'fast\');" class="btn btn-danger">Close</button>
+                            </div>
+                            <div class="offset-2"></div>
+                        </div>
+                        <div class="row"></div>
+                        <div class="row">
+                            <form action="route.php?multipleUserID='. $_GET["multipleUserID"] .'" method="post">
+                                Privacy settings<br>
+                                <select name="public" class="form-control" id="privacy">
+                                    <option>';
+                                    if($public == 1){echo "Public";}else{echo "Private";}
+                                echo '</option>
+                                    <option>';
+                                    if($public == 0){echo "Public";}else{echo "Private";}
+                                echo '</option>
+                                </select>
+                                <br>
+                                <input name="journeySettings" class="btn btn-success" type="submit" value="Apply">
+                            </form>
+                        </div>
+                    </div>
+                </div>';
+            }
+        ?>
+
         <!-- <footer>View our cookie policy: https://www.termsfeed.com/cookies-policy/044a9bc1485cc0cf54b509fedb4fa29b</footer> -->
 
         <script src="route.js"></script>
-        <!-- <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAn_3UQjVzZh01LHtMFPnfLFCkKiBK4Joc&callback=initMap"> -->
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAn_3UQjVzZh01LHtMFPnfLFCkKiBK4Joc&callback=initMap">
     </script>
     </body>
 </html>

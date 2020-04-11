@@ -36,14 +36,37 @@ body, html {
 
 #name{
 	position: relative;
-	/*background-color: #3b3434;*/
+	/*background-color: ##ececec;*/
 	background-color: #c1c1c1;
 	margin-bottom: 0.5em;
 	font-size: 3vw;
 }
 
+#shareLink{
+	color:black;
+	background-color: white;
+	height: 2em;
+}
+
+#shareLinkHelp{
+	font-size: 0.4em;
+}
+
+.input-group-btn{
+	font-size: 0.4em;
+	margin-top: -0.15em;
+}
+
 #selector{
 	/*padding-bottom: 0;*/
+}
+
+#incorrectMessage{
+	display:none;
+	color:#8c8e01;
+	background-color: #c5c5c5;
+	padding:0.5em;
+	border-radius: 0.5em;
 }
 
 .category{
