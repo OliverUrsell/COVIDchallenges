@@ -32,7 +32,8 @@
                 exit();
             }
 
-            if(isset($_REQUEST['newJourneySubmit'])){
+            if(isset($_REQUEST['totalDistance'])){
+                echo $_POST["totalDistance"];
                 $servername = "localhost";
                 $username = "Ollie";
                 $password = "databasepassword";
@@ -141,12 +142,6 @@
                 // {
                 //     $distanceCovered += $_POST['distanceUpdate']*1000;
                 // }
-
-                $travelMode = htmlspecialchars($mainUserRow["TravelMode"]);
-
-                if($travelMode != "WALKING" || $travelMode != "BICYCLING"){
-                    $travelMode = "WALKING";
-                }
                 
                 echo "<script>" .
                 // "var latLongs = [['51.507570', '-0.127784'], ['55.863583', '-4.254418']];" .
@@ -178,7 +173,7 @@
                     </select>
                 </div>
                 <input name="charityLink" class="form-control" type="text" placeholder="Charity Link (optional)"><br>
-                <button name="newJourneySubmit" type="submit" class="btn btn-success">Create</button>
+                <input name="newJourneySubmit" type="submit" class="btn btn-success" value="start">
             </form>
         </div>
 

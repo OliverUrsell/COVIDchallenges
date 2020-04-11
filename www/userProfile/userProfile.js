@@ -69,7 +69,6 @@ function calculateRoute() {
       var distanceTotal = google.maps.geometry.spherical.computeLength(polyline.getPath().getArray());
       distanceTotal = Math.round(distanceTotal/10);
       $("#distanceTotal").attr("value", distanceTotal);
-      alert(distanceTotal);
       var formToSubmit = document.getElementById("createChallengeForm");
       if(formToSubmit.checkValidity()){
       	formToSubmit.submit();

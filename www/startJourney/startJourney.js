@@ -1,6 +1,4 @@
 var directionsService;
-var map;
-var infowindow;
 var polyline = null;
 var gmarkers = [];
 
@@ -11,7 +9,6 @@ function initMap() {
     strokeColor: '#FF0000',
     strokeWeight: 3
   });
-  calculateRoute();
 }
 
 function calculateRoute() {
@@ -32,8 +29,6 @@ function calculateRoute() {
           var travelMode = "WALKING";
           break;
   }
-
-  alert(travelMode);
 
   var _origin = new google.maps.LatLng(latLongs[0][0], latLongs[0][1]);
   var _destination = new google.maps.LatLng(latLongs[latLongs.length-1][0], latLongs[latLongs.length-1][1]);
@@ -79,11 +74,11 @@ function calculateRoute() {
       }
       var distanceTotal = google.maps.geometry.spherical.computeLength(polyline.getPath().getArray());
       distanceTotal = Math.round(distanceTotal/10);
+      alert(distanceTotal);
       $("#distanceTotal").attr("value", distanceTotal);
-      alert("Here: " + distanceTotal);
       var formToSubmit = document.getElementById("startJourneyForm");
       if(formToSubmit.checkValidity()){
-        // formToSubmit.submit();
+        formToSubmit.submit();
       }
     } else {
       // alert("directions response " + status);
