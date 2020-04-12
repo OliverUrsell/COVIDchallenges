@@ -405,8 +405,48 @@
                     // </div> 
                     ?>
                 </div>
-                <div id="statistics" class="block col-10 block offset-1">
-                    Total distance travelled: 
+
+                <div id="statistics" class="block col-10 block offset-1 container-fluid">
+                    <div class="row">
+                        <div class="col offset-4">
+                            <h1>Overall Statistics</h1>
+                        </div>
+                    </div>
+                    <div class="row">
+                    <?php
+                        $result = $conn->query("SELECT SUM(`UserDistanceTravelled`) as TotalDistance, COUNT(*) as numberUndertaken FROM `tblmultipleusers` WHERE `UserID`=". $conn->real_escape_string($_GET["userID"]));
+
+                        $multipleUserStatistics = $result->fetch_assoc();
+                        if(isset($multipleUserStatistics["TotalDistance"])){
+                            // The email the user has submitted is already being used
+                            $taken = TRUE;
+                            echo "<div class=\"col statistic\">Total distance travelled<br>". $multipleUserStatistics["TotalDistance"]/10 ."km</div>
+                            <div class=\"col statistic\">Challenges completed<br>";
+
+                            $result = $conn->query("SELECT COUNT(*) as completedChallenges
+                                                    FROM `tbljourneysusers`
+                                                    INNER JOIN `tblmultipleusers` ON `tbljourneysusers`.`MultipleUserID`=`tblmultipleusers`.`MultipleUserID`
+                                                    WHERE `tbljourneysusers`.`DistanceTravelled` > `tbljourneysusers`.`TotalDistance` AND `tblmultipleusers`.`UserID`=". $conn->real_escape_string($_GET["userID"]) .";");
+                            $completedChallengesRow = $result->fetch_assoc();
+                            if(isset($completedChallengesRow["completedChallenges"])){
+                                echo $completedChallengesRow["completedChallenges"].
+                            "</div><div class=\"col statistic\">Challenges attempted<br>". htmlspecialchars($multipleUserStatistics["numberUndertaken"]) ." </div>";
+
+                                $result = $conn->query("SELECT COUNT(DISTINCT UserID) as DifferentPeople FROM `tblmultipleusers` AS maintable WHERE EXISTS(SELECT * FROM `tblmultipleusers` as sidetable WHERE `UserID`=". $conn->real_escape_string($_GET["userID"]) ." AND maintable.`MultipleUserID` = sidetable.`MultipleUserID`) AND `UserID` != ". $conn->real_escape_string($_GET["userID"]));
+                                $differentPeopleRow = $result->fetch_assoc();
+                                if(isset($differentPeopleRow["DifferentPeople"])){
+                                    echo "<div class=\"col statistic\">Collaborated with<br>". $differentPeopleRow["DifferentPeople"]. " <br>different people</div></div>";
+                                }else{
+                                    echo "Couldn't calculate statistics";
+                                }
+                            }else{
+                                echo "Couldn't calculate statistics";
+                            }
+                        }else{
+                            echo "Couldn't calculate statistics";
+                        }
+                    ?>
+                    </div>
                 </div>
             </div>
         </div>
