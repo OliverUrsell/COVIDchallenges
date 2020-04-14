@@ -7,10 +7,10 @@
 			<?php
 				$navbarLoggedIn = FALSE;
 				if(isset($_SESSION['userID'])){
-					$servername = "localhost";
-	            	$username = "oliver_ursell";
-	            	$password = "Database@52";
-	            	$dbname = "covidchallenges";
+					$servername = "oliverursell05154.domaincommysql.com";
+					$username = "oliver_ursell";
+					$password = "Database@52";
+					$dbname = "covidchallenges";
 					// Create connection
 		            $conn = new mysqli($servername, $username, $password, $dbname);
 		            // Check connection
@@ -34,13 +34,13 @@
 					// User is logged in
 					echo "<div class=\"col-4 nav-text\">Logged in as: ". htmlspecialchars($row['DisplayName']) ."</div>
 					<div class=\"col-2 offset-1\">
-						<a href=\"../COVIDchallenges/COVIDchallenges.php\"><button class=\"nav-button\">COVID challenges</button></a>
+						<a href=\"/\"><button class=\"nav-button\">COVID challenges</button></a>
 					</div>
 					<div class=\"col-4 offset-1\">
-						<form method=\"POST\" action='../login/logout.php'>
+						<form method=\"POST\" action='/login/logout.php'>
 							<input class=\"nav-button nav-button-right\" type=\"submit\" name=\"button1\"  value=\"Logout\">
 						</form> 
-						<a href=\"../userProfile/userProfile.php?userID=". htmlspecialchars($_SESSION["userID"]) ."\"><button class=\"nav-button nav-button-right\">My Profile</button></a>
+						<a href=\"/userProfile/userProfile.php?userID=". htmlspecialchars($_SESSION["userID"]) ."\"><button class=\"nav-button nav-button-right\">My Profile</button></a>
 					</div>
 					";
 					$navbarLoggedIn = TRUE;
@@ -50,8 +50,8 @@
 						<a href=\"/\"><button class=\"nav-button\">COVID challenges</button></a>
 					</div>
 					<div class=\"col-4 offset-1\">
-						<a href=\"../register/register.php\"><button class=\"nav-button nav-button-right\">Register</button></a>
-						<a href=\"../login/login.php\"><button class=\"nav-button nav-button-right\">Login</button></a>
+						<a href=\"/register/register.php\"><button class=\"nav-button nav-button-right\">Register</button></a>
+						<a href=\"/login/login.php\"><button class=\"nav-button nav-button-right\">Login</button></a>
 					</div>";
 				}
 			?>

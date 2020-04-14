@@ -13,7 +13,6 @@
 	<link rel="stylesheet" href="index/index.css">
 </head>
 <body>
-	<?php phpinfo();?>
 	<div class="bg"></div>
 	<?php include 'navbar/navbar.php';?>
 

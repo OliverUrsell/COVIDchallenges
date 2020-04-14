@@ -1,0 +1,15 @@
+body{
+	background-color: black;
+}
+
+#contents{
+	position: fixed;
+	font-size: 2em;
+	top:2em;
+	left: 1.5em;
+	right: 1em;
+	color:white;
+	background-color: #205e2e;
+	margin:2em;
+	padding:1em;
+}

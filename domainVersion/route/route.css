@@ -1,0 +1,156 @@
+body{
+	margin-top: 10vh;
+	background-color: black;
+	color:black;
+	overflow-x: none;
+}
+
+#map{
+	width:100%;
+	height: min(50vw, 50vh);
+	color:black;
+}
+
+#routeName{
+	padding:0.5em;
+	font-size: 150%;
+	color:white;
+}
+
+#toFromDisplay{
+	/*background-color: grey;*/
+	background-color: #c1c1c1; 
+	padding:1em;
+	font-size: 150%;
+	border-left: solid red 2vw;
+}
+
+#progressBar{
+	height: 1.5em;
+	/*background-color: #769176;*/
+	background-color: #c1c1c1;
+	border: solid black 0.1em;
+	padding:0;
+}
+
+#progressBarContents{
+	height:1.3em;
+	width:0%;
+	/*background-color: blue;*/
+	background-color: #6060e0;
+}
+
+#letterValues{
+	display:none;
+}
+
+#challengers{
+	/*background-color: grey;*/
+	background-color: #c1c1c1;
+	padding:1em;
+	font-size: 150%;
+	border-left: solid green 2vw;
+}
+
+.challenger{
+	background-color: green;
+	padding:1em;
+	font-size: 70%;
+	margin-top: 1em;
+	border: solid black;
+	color:white;
+}
+
+.openUserProfile{
+	height: 100%;
+	width:100%;
+	border:none;
+	background-color: #4c8359;
+	text-decoration: none;
+}
+
+.openUserProfile:hover {
+    -webkit-animation: user-border-raise 0.2s forwards; /*for less modern browsers*/
+    animation: user-border-raise 0.2s forwards; /*Inifinite*/
+}
+
+/* Animations */
+@keyframes user-border-raise {
+    to   {border-bottom:solid 0.15em black; background-color:yellow;}
+}
+
+#actionButtons{
+	height:100%;
+	bottom:0;
+}
+
+.actionButtonContainer{
+	padding:0;
+	border:black thick;
+}
+
+#charityLink{
+	background-color: green;
+}
+
+#charityLink:hover {
+    -webkit-animation: charity-border-raise 0.2s forwards; /*for less modern browsers*/
+    animation: charity-border-raise 0.2s forwards; /*Inifinite*/
+}
+
+/* Animations */
+@keyframes charity-border-raise {
+    to   {border-bottom:solid 0.1em black; background-color: #005200;}
+}
+
+/*.actionButton{
+	width:100%;
+	background-color: white;
+	color:black;
+	cursor: pointer;
+}*/
+
+.actionButton{
+	color:white;
+	position:relative;
+	background-color: #c51414;
+	height:5em;
+	border:none;
+	text-decoration: none;
+	width:100%;
+	border-right: solid black;
+	cursor:pointer;
+}
+
+.actionButton:hover {
+    -webkit-animation: border-raise 0.2s forwards; /*for less modern browsers*/
+    animation: border-raise 0.2s forwards; /*Inifinite*/
+}
+
+/* Animations */
+@keyframes border-raise {
+    to   {border-bottom:solid 0.1em black; background-color: #961c1c;}
+}
+
+.config{
+	display: none;
+	position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    padding:2em;
+	background-color: #d9d6e2;
+	color:black;
+}
+
+.update{
+	background-color: white;
+	padding: 1em;
+	border-radius: 1em;
+	border: solid black;
+}
+
+#viewUpdates{
+	height:75%;
+	overflow-y: auto
+}

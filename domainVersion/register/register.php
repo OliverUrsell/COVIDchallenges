@@ -23,15 +23,17 @@
 
             if(isset($_SESSION["userID"])) {
                 //User is already logged in
-                header('Location: ../userProfile/userProfile.php?userID='.htmlspecialchars($_SESSION["userID"]));
+                $URL='../userProfile/userProfile.php?userID='.htmlspecialchars($_SESSION["userID"]);
+                echo "<script type='text/javascript'>document.location.href='{$URL}';</script>";
+                echo '<META HTTP-EQUIV="refresh" content="0;URL=' . $URL . '">';
                 exit();
             }
 
             if(isset($_REQUEST['registerSubmit'])){
-                $servername = "localhost";
-                $username = "Ollie";
-                $password = "databasepassword";
-                $dbname = "main";
+                $servername = "oliverursell05154.domaincommysql.com";
+                $username = "oliver_ursell";
+                $password = "Database@52";
+                $dbname = "covidchallenges";
 
                 // Create connection
                 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -57,7 +59,7 @@
                     $hash = password_hash($passwordFromPost, PASSWORD_BCRYPT, $options);
 
                     // Create new account
-                    $sql = "INSERT INTO tblusers (UserID, Email, Password, DisplayName) VALUES (NULL, '". $conn -> real_escape_string($_POST["email"]) ."', '". $hash ."', '". $conn -> real_escape_string($_POST["displayName"]) ."')";
+                    $sql = "INSERT INTO tblusers (UserID, Email, Password, DisplayName, Public) VALUES (NULL, '". $conn -> real_escape_string($_POST["email"]) ."', '". $hash ."', '". $conn -> real_escape_string($_POST["displayName"]) ."', '1')";
                     if ($conn->query($sql) === TRUE) {
                         // Record updated successfully
                         //Log user in
@@ -70,7 +72,9 @@
                             // Account ID found
                             $row = $result->fetch_assoc();
                             $_SESSION['userID'] = htmlspecialchars($row["UserID"]);
-                            header('Location: ../userProfile/userProfile.php?userID='.htmlspecialchars($row['UserID']));
+                            $URL='../userProfile/userProfile.php?userID='.htmlspecialchars($row['UserID']);
+                            echo "<script type='text/javascript'>document.location.href='{$URL}';</script>";
+                            echo '<META HTTP-EQUIV="refresh" content="0;URL=' . $URL . '">';
                             exit();
                         } else {
                             $row = $result->fetch_assoc();

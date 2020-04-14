@@ -1,0 +1,32 @@
+body{
+	background-color: black;
+}
+
+#contents{
+	position: fixed;
+	font-size: 2em;
+	top:1em;
+	left: 1.5em;
+	right: 1em;
+	color:white;
+	background-color: #205e2e;
+	margin:2em;
+	padding:1em;
+}
+
+input[type="password"], #travelModeContainer{
+	font-size:0.6em;
+}
+
+#yes, #no{
+	font-size: 0.6em;
+	/*height:1em;*/
+}
+
+#failedPassword{
+	color:#8c8e01;
+	background-color: white;
+	padding:0.5em;
+	border-radius: 0.5em;
+	font-size: 0.6em;
+}
